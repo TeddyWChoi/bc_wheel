@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BC Reload &amp; Rise — Lucky Wheel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <!-- ── Fixed background layers ────────────────────────────── -->
+  <div id="bg-image"></div>
+  <div id="bg-overlay"></div>
+  <div id="particles"></div>
+
+  <!-- ══ PRELOADER ════════════════════════════════════════════ -->
+  <div id="preloader">
+    <div class="preloader-spinner"></div>
+  </div>
+
+  <!-- ── Vue 2 Root ─────────────────────────────────────────── -->
+  <div id="vue-app">
+    <div id="app-root">
+
+      <!-- ══ HEADER ════════════════════════════════════════════ -->
+      <header>
+        <div class="header-inner">
+          <img id="img-papaya" alt="Papaya Play" class="logo-papaya" />
+          <img id="img-blackshot" alt="BlackShot SEA" class="logo-blackshot" />
+          <div class="header-right">
+            <button class="btn-sound" :class="{ muted: !soundOn }" @click="toggleSound"
+              :title="soundOn ? 'Sound ON' : 'Sound OFF'">
+              <!-- Sound ON icon -->
+              <svg v-if="soundOn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+              </svg>
+              <!-- Sound OFF icon -->
+              <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 19L19 20.27 20.27 19 5.27 4 4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+              </svg>
+            </button>
+            <button class="btn-signin" @click="isLoggedIn = !isLoggedIn">
+              {{ isLoggedIn ? 'SIGN OUT' : 'SIGN IN' }}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ══ HERO ══════════════════════════════════════════════ -->
+      <section class="hero">
+        <div class="hero-gold-line"></div>
+        <div class="hero-inner">
+
+          <!-- Character (desktop only) -->
+          <div class="hero-character" v-if="!isMobile">
+            <img id="img-character" alt="" />
+          </div>
+
+          <!-- Centered content column -->
+          <div class="hero-content">
+
+            <!-- Jackpot ticker -->
+            <div class="ticker" :key="tickerIdx">
+              <span class="ticker-date">🏆 Mar.09 2026 </span>
+              <span class="ticker-user">{{ JACKPOT_MSGS[tickerIdx].user }}</span>
+              <span class="ticker-date"> has won </span>
+              <span class="ticker-prize">{{ JACKPOT_MSGS[tickerIdx].prize }}</span>
+              <span class="ticker-date">! ⚡</span>
+            </div>
+
+            <!-- Title logo -->
+            <img id="img-title-logo" alt="BC Reload &amp; Rise" class="title-logo" />
+
+            <!-- 3-column row -->
+            <div class="main-row">
+
+              <!-- LEFT: Desktop betting panel -->
+              <div class="bet-panel-wrap" v-if="!isMobile">
+                <div class="bet-panel">
+
+                  <div class="field">
+                    <label>Character</label>
+                    <div class="input-wrap">
+                      <select class="input-base" v-model="selectedChar"
+                        :style="{ cursor: isLoggedIn ? 'pointer' : 'default' }" :disabled="!isLoggedIn">
+                        <option value="" disabled hidden></option>
+                        <option v-for="c in CHARACTERS" :key="c" :value="c">{{ c }}</option>
+                      </select>
+                      <span class="select-arrow">▾</span>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label>My BC is...</label>
+                    <div class="input-wrap">
+                      <input type="text" class="input-base" :value="bcDisplay"
+                        :style="{ color: isLoggedIn ? '#FFD700' : 'rgba(255,255,255,0.3)', cursor: 'default' }"
+                        readonly />
+                      <span class="input-suffix">BC</span>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label>I bet...</label>
+                    <div class="bet-row">
+                      <div class="bet-input-wrap">
+                        <input type="text" class="input-base" :class="{ 'max-active': isMaxBet }" :value="betAmount"
+                          @input="handleBetChange($event.target.value)" placeholder="—" :disabled="!isLoggedIn"
+                          :style="{ cursor: isLoggedIn ? 'text' : 'not-allowed' }" />
+                        <span class="input-suffix" :class="{ 'max-active': isMaxBet }">BC</span>
+                      </div>
+                      <!-- MAX button -->
+                      <button class="max-btn" @click="handleMaxToggle" style="flex-shrink:0;">
+                        <div class="max-btn-dome" :class="isMaxBet ? 'active' : 'inactive'">
+                          <span class="max-btn-label">MAX</span>
+                          <span class="max-btn-value">{{ MAX_BET }} BC</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <!-- /desktop bet panel -->
+
+              <!-- CENTER: Wheel -->
+              <div class="wheel-col">
+                <div id="wheel-outer" class="wheel-outer"
+                  :style="{ width: wheelDisplaySize + 'px', height: wheelDisplaySize + 'px', cursor: (isLoggedIn && !isSpinning) ? 'pointer' : 'default' }"
+                  @click="handleSpinClick">
+
+                  <!-- Scale wrapper — always 500×500 internally -->
+                  <div id="wheel-scale-wrap" class="wheel-scale-wrap"
+                    :style="{ width: '500px', height: '500px', transform: wheelScale < 1 ? 'scale(' + wheelScale + ')' : 'none' }">
+                    <!-- Wheel renders here via WheelController -->
+                    <div id="wheel-wrapper"></div>
+                  </div>
+
+                  <!-- Login overlay -->
+                  <div class="login-overlay" v-if="!isLoggedIn" @click="handleSpinClick">
+                    <div class="login-prompt">
+                      <div class="login-icon">🔒</div>
+                      <p>Sign In to Spin</p>
+                      <span class="login-subtext">Unlock your rewards!</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Countdown -->
+                <div class="countdown-wrap">
+                  <div class="countdown-box">
+                    <p class="countdown-label">Mar.01 2026 to Mar.31 2026(CET)</p>
+                    <div class="countdown-digits">
+
+                      <div class="countdown-unit">
+                        <div class="countdown-cells">
+                          <div class="digit-cell" v-for="(d, i) in cdDays" :key="'d'+i"><span>{{ d }}</span></div>
+                        </div>
+                        <span class="countdown-unit-label">Days</span>
+                      </div>
+
+                      <span class="colon">:</span>
+
+                      <div class="countdown-unit">
+                        <div class="countdown-cells">
+                          <div class="digit-cell" v-for="(d, i) in cdHours" :key="'h'+i"><span>{{ d }}</span></div>
+                        </div>
+                        <span class="countdown-unit-label">Hours</span>
+                      </div>
+
+                      <span class="colon">:</span>
+
+                      <div class="countdown-unit">
+                        <div class="countdown-cells">
+                          <div class="digit-cell" v-for="(d, i) in cdMins" :key="'m'+i"><span>{{ d }}</span></div>
+                        </div>
+                        <span class="countdown-unit-label">Mins</span>
+                      </div>
+
+                      <span class="colon">:</span>
+
+                      <div class="countdown-unit">
+                        <div class="countdown-cells">
+                          <div class="digit-cell" v-for="(d, i) in cdSecs" :key="'s'+i"><span>{{ d }}</span></div>
+                        </div>
+                        <span class="countdown-unit-label">Secs</span>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /center wheel -->
+
+              <!-- RIGHT: desktop spacer -->
+              <div class="main-spacer" v-if="!isMobile" :style="{ width: '302px' }"></div>
+
+              <!-- MOBILE: Betting panel (below wheel) -->
+              <div class="mobile-bet-panel" v-if="isMobile">
+                <div class="bet-panel">
+
+                  <div class="field">
+                    <label>Character</label>
+                    <div class="input-wrap">
+                      <select class="input-base" v-model="selectedChar"
+                        :style="{ cursor: isLoggedIn ? 'pointer' : 'default' }" :disabled="!isLoggedIn">
+                        <option value="" disabled hidden></option>
+                        <option v-for="c in CHARACTERS" :key="c" :value="c">{{ c }}</option>
+                      </select>
+                      <span class="select-arrow">▾</span>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label>My BC is...</label>
+                    <div class="input-wrap">
+                      <input type="text" class="input-base" :value="bcDisplay"
+                        :style="{ color: isLoggedIn ? '#FFD700' : 'rgba(255,255,255,0.3)', cursor: 'default' }"
+                        readonly />
+                      <span class="input-suffix">BC</span>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label>I bet...</label>
+                    <div class="bet-row">
+                      <div class="bet-input-wrap">
+                        <input type="text" class="input-base" :class="{ 'max-active': isMaxBet }" :value="betAmount"
+                          @input="handleBetChange($event.target.value)" placeholder="—" :disabled="!isLoggedIn"
+                          :style="{ cursor: isLoggedIn ? 'text' : 'not-allowed' }" />
+                        <span class="input-suffix" :class="{ 'max-active': isMaxBet }">BC</span>
+                      </div>
+                      <button class="max-btn" @click="handleMaxToggle" style="flex-shrink:0;">
+                        <div class="max-btn-dome" :class="isMaxBet ? 'active' : 'inactive'">
+                          <span class="max-btn-label">MAX</span>
+                          <span class="max-btn-value">{{ MAX_BET }} BC</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <!-- /mobile bet panel -->
+
+            </div>
+            <!-- /main-row -->
+
+          </div>
+          <!-- /hero-content -->
+        </div>
+        <!-- /hero-inner -->
+      </section>
+      <!-- /hero -->
+
+      <!-- ══ GUIDE SECTION ══════════════════════════════════════ -->
+      <section class="guide-section">
+        <div class="guide-outer">
+          <div class="guide-inner">
+            <div class="guide-header">
+              <span class="guide-title">BC Gacha Betting Guide</span>
+              <button class="btn-history" @click="openHistory" :disabled="!isLoggedIn">HISTORY</button>
+            </div>
+            <div class="guide-content">
+              <p>📌 Betting Rules</p>
+              <ul>
+                <li>You can bet between 1 and 100 BC per spin.</li>
+                <li>Winnings are paid out as a multiplier (2x ~ 100x) of your bet amount.</li>
+                <li>After each spin, you must wait a set amount of time before spinning again.</li>
+              </ul>
+              <p>💰 Reward Payout</p>
+              <ul>
+                <li>Winnings are automatically added to your in-game BC balance.</li>
+                <li style="color:rgba(200,190,220,0.7);font-size:13px;">(* Please allow up to 5 minutes for rewards to
+                  be reflected in-game.)</li>
+                <li>In the event of a system error, the affected bet will be voided and your BC will be refunded
+                  automatically.</li>
+              </ul>
+              <p>⚠️ Notice</p>
+              <ul>
+                <li>Once a bet is placed, it cannot be cancelled or refunded.</li>
+                <li>BC is a virtual in-game currency and cannot be exchanged for real money.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ FOOTER ═════════════════════════════════════════════ -->
+      <footer>
+        <div class="footer-logos">
+          <img id="img-footer-papaya" alt="Papaya Play" />
+          <img id="img-footer-bluepotion" alt="Vertigo Games" />
+        </div>
+        <p class="footer-copy">
+          © 2026 Vertigo Games Inc. &amp; Vertigo Games International Pte. Ltd. All Rights Reserved
+        </p>
+        <div class="footer-links">
+          <a href="https://uwo.papayaplay.com/portal.do?tp=terms" target="_blank" rel="noopener noreferrer">TERMS OF
+            SERVICE</a>
+          <div class="footer-divider"></div>
+          <a href="https://uwo.papayaplay.com/portal.do?tp=privacy" target="_blank" rel="noopener noreferrer">PRIVACY
+            POLICY</a>
+        </div>
+      </footer>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- MODALS                                                -->
+      <!-- ══════════════════════════════════════════════════════ -->
+
+      <!-- ── Confirm Modal ──────────────────────────────────── -->
+      <div class="modal-backdrop" v-if="confirmType" style="z-index:200;" @click="confirmType = null">
+        <div class="confirm-card" @click.stop>
+          <div class="confirm-text">
+            <template v-if="confirmType === 'usedFree'">
+              You have already used today's free spin.<br />
+              Would you like to purchase another spin for
+              <span class="confirm-highlight">70 Gems</span>?
+            </template>
+            <template v-else>
+              You have wagered
+              <span class="confirm-highlight">{{ betAmount }} BC</span>.
+              Spin the wheel now?
+            </template>
+          </div>
+          <div class="confirm-btns">
+            <button class="btn-cancel" @click="confirmType = null">CANCEL</button>
+            <button class="btn-confirm" @click="handleConfirmSpin">CONFIRM</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── History Modal ──────────────────────────────────── -->
+      <div class="modal-backdrop-dark" v-if="showHistory" :style="{ opacity: historyVisible ? 1 : 0 }"
+        @click="closeHistory">
+        <div class="history-card" :style="{
+        transform: historyVisible ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(16px)',
+        opacity:   historyVisible ? 1 : 0,
+      }" @click.stop>
+
+          <div class="history-header">
+            <div class="history-header-left">
+              <div class="history-icon">🏆</div>
+              <div>
+                <div class="history-title">BlackShot Event Wheel History</div>
+                <div class="history-subtitle">Your spin records</div>
+              </div>
+            </div>
+            <button class="history-close" @click="closeHistory">✕</button>
+          </div>
+
+          <div class="history-divider"></div>
+
+          <div class="history-table-head">
+            <div class="history-th">{{ isMobile ? 'Date' : 'Date' }}</div>
+            <div class="history-th">{{ isMobile ? 'BC' : 'My BC' }}</div>
+            <div class="history-th">{{ isMobile ? 'Bet' : 'I Bet' }}</div>
+            <div class="history-th">{{ isMobile ? 'Result' : 'Spin Result' }}</div>
+            <div class="history-th">{{ isMobile ? 'Bal.' : 'Balance' }}</div>
+          </div>
+
+          <div class="history-table-body">
+            <div v-if="historyRows.length === 0" class="history-empty">
+              No spin records yet. Try your luck!
+            </div>
+            <div v-else v-for="(row, i) in historyRows" :key="i" class="history-row"
+              :style="{ background: historyRowBg(i) }">
+              <div class="history-td date">{{ historyDateDisplay(row) }}</div>
+              <div class="history-td mybc">{{ row.myBc.toLocaleString() }}</div>
+              <div class="history-td ibet">{{ row.iBet.toLocaleString() }}</div>
+              <div class="history-td result">{{ row.spinResult }}</div>
+              <div class="history-td balance">{{ row.balance.toLocaleString() }}</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Result Modal ───────────────────────────────────── -->
+      <div class="modal-backdrop" v-if="prizeResult !== null" @click="closeResult" style="z-index:300;">
+
+        <!-- Inject keyframe animation styles once -->
+        <style>
+          @keyframes fw-burst {
+            0% {
+              transform: scale(0.2) rotate(-4deg);
+              opacity: 0;
+            }
+
+            35% {
+              transform: scale(1.18) rotate(2deg);
+              opacity: 1;
+            }
+
+            55% {
+              transform: scale(0.93) rotate(-1deg);
+              opacity: 1;
+            }
+
+            75% {
+              transform: scale(1.07) rotate(1deg);
+              opacity: 1;
+            }
+
+            100% {
+              transform: scale(1) rotate(0deg);
+              opacity: 1;
+            }
+          }
+
+          @keyframes fw-float {
+            0% {
+              transform: scale(1) rotate(0deg);
+            }
+
+            20% {
+              transform: scale(1.06) rotate(1.5deg);
+            }
+
+            45% {
+              transform: scale(0.96) rotate(-1deg);
+            }
+
+            70% {
+              transform: scale(1.04) rotate(0.8deg);
+            }
+
+            100% {
+              transform: scale(1) rotate(0deg);
+            }
+          }
+
+          @keyframes fw-float-alt {
+            0% {
+              transform: scale(1) rotate(0deg);
+            }
+
+            25% {
+              transform: scale(1.08) rotate(-2deg);
+            }
+
+            50% {
+              transform: scale(0.94) rotate(1.5deg);
+            }
+
+            75% {
+              transform: scale(1.05) rotate(-0.8deg);
+            }
+
+            100% {
+              transform: scale(1) rotate(0deg);
+            }
+          }
+
+          @keyframes smoke-flicker {
+            0% {
+              transform: scale(1) translateY(0px);
+              opacity: 1;
+            }
+
+            20% {
+              transform: scale(1.04) translateY(-6px);
+              opacity: 0.82;
+            }
+
+            40% {
+              transform: scale(1.07) translateY(-2px);
+              opacity: 1;
+            }
+
+            60% {
+              transform: scale(1.03) translateY(-8px);
+              opacity: 0.88;
+            }
+
+            80% {
+              transform: scale(1.05) translateY(-3px);
+              opacity: 0.94;
+            }
+
+            100% {
+              transform: scale(1) translateY(0px);
+              opacity: 1;
+            }
+          }
+        </style>
+
+        <div :style="{
+        transform: resultVisible ? 'scale(1)' : 'scale(0.45)',
+        opacity:   resultVisible ? 1 : 0,
+        transition: 'all 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+      }" @click.stop>
+
+          <!-- Scaled canvas: 722×696 -->
+          <div class="result-outer"
+            :style="{ width: (722 * resultModalScale) + 'px', height: (696 * resultModalScale) + 'px' }">
+
+            <div class="result-canvas"
+              :style="{ width: '722px', height: '696px', transform: 'scale(' + resultModalScale + ')' }">
+
+              <!-- JACKPOT firework -->
+              <div v-if="isJackpot" class="result-fw" :style="{
+              left: (361 - 380) + 'px', top: (348 - 400) + 'px',
+              width: '760px', height: '760px', zIndex: 0,
+              animation: resultAnimReady
+                ? 'fw-burst 0.7s cubic-bezier(0.22,1,0.36,1) forwards, fw-float 3.2s ease-in-out 0.7s infinite'
+                : 'none',
+              opacity: resultAnimReady ? 1 : 0,
+            }">
+                <img :src="'images/a5f28a277402d63a6cfcd89cbf9721376eb61dff.png'" alt="" />
+              </div>
+
+              <!-- WIN firework -->
+              <div v-if="isWin" class="result-fw" :style="{
+              left: (361 - 370) + 'px', top: (348 - 275) + 'px',
+              width: '740px', height: '560px', zIndex: 0,
+              animation: resultAnimReady
+                ? 'fw-burst 0.7s cubic-bezier(0.22,1,0.36,1) forwards, fw-float-alt 3.6s ease-in-out 0.7s infinite'
+                : 'none',
+              opacity: resultAnimReady ? 1 : 0,
+            }">
+                <img :src="'images/f7eb0f13191499107f8c883c1ce848f8dabc5a21.png'" alt="" />
+              </div>
+
+              <!-- LOSE background -->
+              <div v-if="isLose" class="result-lose-tile-wrap" :style="{
+              animation: resultAnimReady ? 'smoke-flicker 2.8s ease-in-out infinite' : 'none',
+            }">
+                <img :src="'images/6bd8c7c82d3eed9cb2b7582c71f3f9dab121e7e0.png'" alt="" />
+              </div>
+
+              <!-- CARD -->
+              <div class="result-card">
+                <div class="result-card-bg"></div>
+
+                <!-- Texture -->
+                <img v-if="!isLose" class="result-texture" :src="'images/5fd3debeb328f575349f53dd16eaf13b0742a20e.png'"
+                  alt="" style="mix-blend-mode:screen;" />
+                <img v-else class="result-texture" :src="'images/6bd8c7c82d3eed9cb2b7582c71f3f9dab121e7e0.png'" alt=""
+                  style="opacity:0.2;" />
+
+                <!-- Symbol pattern -->
+                <img class="result-symbol" :src="'images/e91792b2a1c5f3393ffb6c8b73db69133d173971.png'" alt="" />
+
+                <!-- Gold line -->
+                <div class="result-gold-line"></div>
+
+                <!-- Title -->
+                <div v-if="isLose" class="result-title-lose-overflow" :style="resultTitleStyle">
+                  <img :src="resultTitleImg" alt="LOSE" />
+                </div>
+                <div v-else class="result-title-wrap" :style="resultTitleStyle">
+                  <img :src="resultTitleImg" :alt="isJackpot ? 'JACKPOT' : 'WIN'"
+                    style="width:100%;height:100%;object-fit:contain;" />
+                </div>
+
+                <!-- Character frame -->
+                <div class="result-frame-wrap">
+                  <img :src="'images/f18708ae9846da92a57363317025859ca7e31fcb.png'" alt=""
+                    style="width:100%;height:100%;object-fit:cover;" />
+                </div>
+
+                <!-- Character portrait -->
+                <div class="result-char-wrap" :style="{
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(' + resultCharLeft + ')',
+                top: resultCharTop,
+                width: resultCharSize,
+                height: resultCharSize,
+              }">
+                  <img :src="resultCharImg" alt="" style="width:100%;height:100%;object-fit:cover;" />
+                </div>
+
+                <!-- Result text -->
+                <div class="result-text" v-if="prize">
+                  <div class="result-text-row">
+                    <p>
+                      <span class="g-label">You bet </span>
+                      <span class="g-number">{{ betAmount }}</span>
+                      <span class="g-unit"> BC {{ prize.name }}</span>
+                    </p>
+                  </div>
+                  <div class="result-text-row2">
+                    <p>
+                      <span class="g-label">You Earn </span>
+                      <span class="g-number">{{ earnings.toLocaleString() }}</span>
+                      <span class="g-unit"> BC</span>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- CLAIM button -->
+                <div class="result-claim" @click="closeResult">
+                  <img :src="'images/b5bfeee9eeb33d487b622f1c6b6146516cf73186.png'" alt="CLAIM" />
+                </div>
+
+                <!-- Inner glow -->
+                <div class="result-inner-glow"></div>
+              </div>
+              <!-- /card -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- /result modal -->
+
+    </div><!-- /app-root -->
+  </div><!-- /vue-app -->
+
+  <!-- ── Scripts ──────────────────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+  <script src="js/wheel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
