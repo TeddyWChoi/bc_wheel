@@ -1501,10 +1501,12 @@ footer {
   }
 
   .ticker {
-    padding: 9px 20px;
-    font-size: 16px;
-    max-width: 90%;
+    padding: 6px 14px;
+    font-size: 13px;
+    max-width: 95vw;
     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .main-row {
