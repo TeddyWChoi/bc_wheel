@@ -350,10 +350,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update cursor after spin
                 const outerEl = document.getElementById('wheel-outer');
                 if (outerEl) outerEl.style.cursor = 'pointer';
+
+                // Change main character if jackpot
+                if (window.PRIZES[idx].multiplier === 100) {
+                    const charImg = document.getElementById('img-character');
+                    if (charImg) charImg.src = window.IMG.characterJackpotPose;
+                }
             },
 
             closeResult() {
                 this.prizeResult = null;
+                // Revert main character to normal pose
+                const charImg = document.getElementById('img-character');
+                if (charImg) charImg.src = window.IMG.character;
             },
 
             // ── Betting ────────────────────────────────────────────────
