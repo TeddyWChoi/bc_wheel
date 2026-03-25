@@ -322,14 +322,15 @@ class WheelController {
     const spins = 5 + Math.floor(Math.random() * 4);
     const target = base + (spins + 1) * 360 - midpoint;
 
-    // 5 different easing curves (some with bounce-back overshoot at the END)
-    // Bezier notes: (x1, y1, x2, y2). To bounce at the end, x2 should be large, and y2 > 1.0.
+    // 5 different easing curves
+    // To make the bounce back highly visible:
+    // P2 (x2, y2) needs a lower x2 (so the peak happens earlier and has time to roll back) and a larger y2.
     const SPIN_EASES = [
-      'cubic-bezier(0.1, 0.0, 0.2, 1.0)',  // 1) Soft stop (no bounce)
-      'cubic-bezier(0.2, 0.0, 0.5, 1.02)', // 2) Small bounce (overshoot ~1.5%)
-      'cubic-bezier(0.3, 0.0, 0.7, 1.04)', // 3) Noticeable bounce (overshoot ~2.5%)
-      'cubic-bezier(0.3, 0.0, 0.8, 1.06)', // 4) Dramatic bounce (overshoot ~3.5%)
-      'cubic-bezier(0.4, 0.0, 0.9, 1.08)'  // 5) Extreme back-pull (overshoot ~5%, nearly 1 slice)
+      'cubic-bezier(0.1, 0.0, 0.3, 1.0)',   // 1) Normal: Soft stop
+      'cubic-bezier(0.2, 0.0, 0.5, 1.0)',   // 2) Normal: Smoother stop
+      'cubic-bezier(0.3, 0.0, 0.7, 1.0)',   // 3) Normal: Long slow end
+      'cubic-bezier(0.25, 0.1, 0.4, 1.08)', // 4) Bounce: Crosses into the next slice, drags back
+      'cubic-bezier(0.3,  0.0, 0.4, 1.15)'  // 5) Huge Bounce: Highly exaggerated overshoot and rollback
     ];
     const ease = SPIN_EASES[Math.floor(Math.random() * SPIN_EASES.length)];
 
