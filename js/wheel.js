@@ -130,9 +130,14 @@ class WheelController {
     // Defs
     const defs = svgEl('defs', {});
 
-    PRIZES.forEach((_, i) => {
+    PRIZES.forEach((prize, i) => {
       const rg = svgEl('radialGradient', { id: `wSeg${i}`, cx: '50%', cy: '50%', r: '50%' });
-      if (i % 2 === 0) {
+      if (prize.multiplier === 100) {
+        // Golden slice with pulsing animation
+        rg.appendChild(this._stop('0%', '#FFE066', '#FFE066;#FFFFFF;#FFE066'));
+        rg.appendChild(this._stop('50%', '#D4AF37', '#D4AF37;#FFD700;#D4AF37'));
+        rg.appendChild(this._stop('100%', '#8B6508', '#8B6508;#B8860B;#8B6508'));
+      } else if (i % 2 === 0) {
         rg.appendChild(this._stop('0%', '#4A238C'));
         rg.appendChild(this._stop('60%', '#2E1060'));
         rg.appendChild(this._stop('100%', '#130430'));
@@ -211,16 +216,16 @@ class WheelController {
 
       g.appendChild(svgEl('rect', {
         x: -pW / 2, y: -pH / 2, width: pW, height: pH, rx: pH / 2,
-        fill: isSpec ? '#FFE456' : '#DDCDFF',
-        stroke: isSpec ? 'rgba(50,0,57,0.5)' : 'rgba(194,165,255,0.5)',
-        'stroke-width': 1,
+        fill: isSpec ? '#2E1060' : '#DDCDFF',
+        stroke: isSpec ? '#FFD700' : 'rgba(194,165,255,0.5)',
+        'stroke-width': isSpec ? 1.5 : 1,
       }));
 
       const txt = svgEl('text', {
         x: 0, y: 1,
         'text-anchor': 'middle',
         'dominant-baseline': 'middle',
-        fill: '#333', 'font-size': 20, 'font-weight': 'bold',
+        fill: isSpec ? '#FFD700' : '#333', 'font-size': 20, 'font-weight': 'bold',
         'font-family': "'Open Sans', Arial, sans-serif",
       });
       txt.textContent = prize.name;
@@ -231,8 +236,17 @@ class WheelController {
     this.spinLayer.appendChild(svg);
   }
 
-  _stop(offset, color) {
-    return svgEl('stop', { offset, 'stop-color': color });
+  _stop(offset, color, animValues) {
+    const s = svgEl('stop', { offset, 'stop-color': color });
+    if (animValues) {
+      s.appendChild(svgEl('animate', {
+        attributeName: 'stop-color',
+        values: animValues,
+        dur: '2s',
+        repeatCount: 'indefinite'
+      }));
+    }
+    return s;
   }
 
   _buildCoins() {
