@@ -1706,19 +1706,14 @@ footer {
 }
 
 .char-png.png1 {
-  animation: character-fade-out 0.8s infinite alternate ease-in-out;
+  animation: character-toggle 0.8s infinite step-end;
 }
 
 .char-png.png2 {
-  animation: character-fade-in 0.8s infinite alternate ease-in-out;
+  animation: character-toggle 0.8s infinite step-end reverse;
 }
 
-@keyframes character-fade-out {
-  0%, 15% { opacity: 1; }
-  85%, 100% { opacity: 0; }
-}
-
-@keyframes character-fade-in {
-  0%, 15% { opacity: 0; }
-  85%, 100% { opacity: 1; }
+@keyframes character-toggle {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
