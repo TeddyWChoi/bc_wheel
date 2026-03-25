@@ -1705,11 +1705,20 @@ footer {
   pointer-events: none;
 }
 
-.char-png.png2 {
-  animation: character-crossfade 0.8s infinite alternate ease-in-out;
+.char-png.png1 {
+  animation: character-fade-out 0.8s infinite alternate ease-in-out;
 }
 
-@keyframes character-crossfade {
+.char-png.png2 {
+  animation: character-fade-in 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes character-fade-out {
+  0%, 15% { opacity: 1; }
+  85%, 100% { opacity: 0; }
+}
+
+@keyframes character-fade-in {
   0%, 15% { opacity: 0; }
   85%, 100% { opacity: 1; }
 }
