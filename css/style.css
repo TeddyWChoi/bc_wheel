@@ -1690,3 +1690,26 @@ footer {
   transform: scale(0.95);
   filter: brightness(0.9);
 }
+/* ── Result Character Crossfade ──────────────────────────────── */
+.result-char-wrap {
+  position: absolute;
+  overflow: hidden;
+}
+
+.char-png {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.char-png.png2 {
+  animation: character-crossfade 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes character-crossfade {
+  0%, 15% { opacity: 0; }
+  85%, 100% { opacity: 1; }
+}

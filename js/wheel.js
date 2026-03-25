@@ -25,15 +25,18 @@ const IMG = {
 
   // Result modal
   fwJackpot: 'images/a5f28a277402d63a6cfcd89cbf9721376eb61dff.png',
-  charJackpot: 'images/jackpot.gif',
+  charJackpot1: 'images/jackpot1.png',
+  charJackpot2: 'images/jackpot2.png',
   titleJackpot: 'images/09ea47dd2ab10368a9f265f1a1417f7933032654.png',
 
   fwWin: 'images/f7eb0f13191499107f8c883c1ce848f8dabc5a21.png',
-  charWin: 'images/win.gif',
+  charWin1: 'images/win1.png',
+  charWin2: 'images/win2.png',
   titleWin: 'images/11858cabc8a088c469ef1b8bfd1eeedd96dee9b7.png',
 
   bgLose: 'images/6bd8c7c82d3eed9cb2b7582c71f3f9dab121e7e0.png',
-  charLose: 'images/lose.gif',
+  charLose1: 'images/lose1.png',
+  charLose2: 'images/lose2.png',
   titleLose: 'images/63a41f82ad786bbd0711f88dc9c398b056495d3e.png',
 
   container: 'images/5fd3debeb328f575349f53dd16eaf13b0742a20e.png',

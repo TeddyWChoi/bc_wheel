@@ -142,9 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             wheelScale() { return this.wheelDisplaySize / 500; },
             // Result modal images
-            resultCharImg() {
+            resultCharImg1() {
                 if (!this.prize) return '';
-                return this.isJackpot ? window.IMG.charJackpot : (this.isWin ? window.IMG.charWin : window.IMG.charLose);
+                return this.isJackpot ? window.IMG.charJackpot1 : (this.isWin ? window.IMG.charWin1 : window.IMG.charLose1);
+            },
+            resultCharImg2() {
+                if (!this.prize) return '';
+                return this.isJackpot ? window.IMG.charJackpot2 : (this.isWin ? window.IMG.charWin2 : window.IMG.charLose2);
             },
             resultTitleImg() {
                 if (!this.prize) return '';
