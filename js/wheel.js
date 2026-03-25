@@ -322,9 +322,19 @@ class WheelController {
     const spins = 5 + Math.floor(Math.random() * 4);
     const target = base + (spins + 1) * 360 - midpoint;
 
+    // 5 different easing curves for the exact same SPIN_DUR
+    const SPIN_EASES = [
+      'cubic-bezier(0.01, 0.0, 0.05, 1.0)', // 1) Default tension
+      'cubic-bezier(0.02, 0.0, 0.15, 1.0)', // 2) Faster start, longer creeping stop
+      'cubic-bezier(0.1,  0.0, 0.01, 1.0)', // 3) A bit more linear slowdown
+      'cubic-bezier(0.05, 0.05, 0.1, 1.0)', // 4) Smooth, gradual tension
+      'cubic-bezier(0.0,  0.0, 0.2,  1.0)'  // 5) Very fast start, extremely slow crawl at end
+    ];
+    const ease = SPIN_EASES[Math.floor(Math.random() * SPIN_EASES.length)];
+
     this.rotation = target;
     this.isAnim = true;
-    this.spinLayer.style.transition = `transform ${SPIN_DUR}ms cubic-bezier(0.01,0.0,0.05,1.0)`;
+    this.spinLayer.style.transition = `transform ${SPIN_DUR}ms ${ease}`;
     this.spinLayer.style.transform = `rotate(${target}deg)`;
 
     setTimeout(() => {
