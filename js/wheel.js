@@ -337,15 +337,16 @@ class WheelController {
     const spins = 5 + Math.floor(Math.random() * 4);
     const target = base + (spins + 1) * 360 - midpoint;
 
-    // 5 different easing curves
-    // To make the bounce back highly visible:
-    // P2 (x2, y2) needs a lower x2 (so the peak happens earlier and has time to roll back) and a larger y2.
+    // 5 different easing curves (True Ease-Out Physical Start)
+    // C1 y is very high and x is low -> max velocity instantly.
+    // C2 x is high -> long, steady slowdown.
+    // y2 > 1.0 causes the bounce back.
     const SPIN_EASES = [
-      'cubic-bezier(0.1, 0.0, 0.3, 1.0)',   // 1) Normal: Soft stop
-      'cubic-bezier(0.2, 0.0, 0.5, 1.0)',   // 2) Normal: Smoother stop
-      'cubic-bezier(0.3, 0.0, 0.7, 1.0)',   // 3) Normal: Long slow end
-      'cubic-bezier(0.25, 0.1, 0.4, 1.08)', // 4) Bounce: Crosses into the next slice, drags back
-      'cubic-bezier(0.3,  0.0, 0.4, 1.15)'  // 5) Huge Bounce: Highly exaggerated overshoot and rollback
+      'cubic-bezier(0.1, 0.7, 0.7, 1.0)',   // 1) Normal: Firm rocket start, steady slow down
+      'cubic-bezier(0.05, 0.8, 0.6, 1.0)',  // 2) Normal: Harder start, long crawl to stop
+      'cubic-bezier(0.15, 0.85, 0.8, 1.0)', // 3) Normal: Smooth explosion, very slow tail
+      'cubic-bezier(0.05, 0.8, 0.7, 1.08)', // 4) Bounce: Explodes, coasts past by ~8%, drags back
+      'cubic-bezier(0.1, 0.9, 0.8, 1.15)'   // 5) Huge Bounce: Explodes, coasts past by ~15%, slowly drags back
     ];
     const ease = SPIN_EASES[Math.floor(Math.random() * SPIN_EASES.length)];
 
