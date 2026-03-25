@@ -278,7 +278,8 @@ class WheelController {
 
     // Center hub
     const hubWrap = document.createElement('div');
-    hubWrap.style.cssText = `position:absolute;left:166px;top:139px;width:169px;height:195px;pointer-events:none;z-index:5;`;
+    hubWrap.className = 'center-hub-btn';
+    hubWrap.style.cssText = `position:absolute;left:166px;top:139px;width:169px;height:195px;pointer-events:auto;cursor:pointer;z-index:5;`;
 
     const crystalWrap = document.createElement('div');
     crystalWrap.style.cssText = `position:absolute;left:0;right:0;top:27px;aspect-ratio:1050/1046;`;

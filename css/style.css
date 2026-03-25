@@ -1670,3 +1670,18 @@ footer {
 .mobile-bet-panel .bet-panel {
   margin-top: 0;
 }
+
+/* ── Center Spin Hub Hover State ─────────────────────────── */
+.center-hub-btn {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease-out;
+}
+
+.center-hub-btn:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)) brightness(1.15);
+}
+
+.center-hub-btn:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
