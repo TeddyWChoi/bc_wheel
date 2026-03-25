@@ -47,7 +47,7 @@ const IMG = {
   titleLogo: 'images/fa8b6b33ed99ff6b6d7a428477578a67a98802cb.png',
   character: 'images/bunny_suit.png',
   characterJackpotPose: 'images/9b703ebd3c9f8529a6a1a34ac35a249e1636eb06.png',
-  mainBg: 'images/3f20a3cef9dbfa7e97d8e9dcd158d26bf7a67af1.png',
+  mainBg: 'images/3f20a3cef9dbfa7e97d8e9dcd158d26bf7a67af1.jpg',
   bluepotion: 'images/230d1452f41f3031f96e68e7e3db44b07c311c8b.png',
 };
 

@@ -160,7 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
             resultCharSize() { return this.isJackpot ? '115px' : '129px'; },
             resultCharLeft() { return this.isJackpot ? 'calc(-50% + 0.5px)' : 'calc(-50% - 0.5px)'; },
             resultModalScale() {
-                return Math.min(1, (this.windowWidth - 32) / 722);
+                const baseScale = Math.min(1, (this.windowWidth - 32) / 722);
+                return this.isMobile ? baseScale * 1.5 : baseScale;
             },
             // countdown digits
             cdDays() { return String(this.countdown.days).padStart(2, '0').split(''); },
@@ -216,7 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Responsive listener
             const onResize = () => {
-                this.isMobile = window.innerWidth <= 768;
+                const wasMobile = this.isMobile;
+                const isMobileNow = window.innerWidth <= 768;
+
+                if (wasMobile !== isMobileNow) {
+                    location.reload();
+                    return;
+                }
+
+                this.isMobile = isMobileNow;
                 this.windowWidth = window.innerWidth;
             };
             window.addEventListener('resize', onResize);
@@ -379,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         spread: 55,
                         origin: { x: 0, y: 1 },
                         colors: colors,
-                        zIndex: 9999
+                        zIndex: 250
                     });
                     window.confetti({
                         particleCount: 7,
@@ -387,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         spread: 55,
                         origin: { x: 1, y: 1 },
                         colors: colors,
-                        zIndex: 9999
+                        zIndex: 250
                     });
                     requestAnimationFrame(frame);
                 };
