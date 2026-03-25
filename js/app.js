@@ -319,8 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this._wheelSound.loop = true;
                     this._wheelSound.play().catch(() => { });
                 }
-                // 무조건 잭팟(index 5)이 나오도록 강제 (테스트용)
-                if (this.wheel) this.wheel.spin(5);
+                if (this.wheel) this.wheel.spin();
             },
 
             handleSpinEnd(idx) {
@@ -338,17 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     spinResult: window.PRIZES[idx].name,
                     balance: this.bcBalance - (parseInt(this.betAmount) || 0),
                 });
-
-                const prize = window.PRIZES[idx];
-
-                // 잭팟 달성 시 캐릭터 변환
-                if (prize.multiplier === 100) {
-                    const charImg = document.getElementById('img-character');
-                    if (charImg) charImg.src = window.IMG.old_character;
-                }
-
                 // 결과 효과음 재생
                 if (this.soundOn) {
+                    const prize = window.PRIZES[idx];
                     let soundFile;
                     if (prize.multiplier === 100) soundFile = 'sound/jackpot.mp3';
                     else if (prize.multiplier === 0) soundFile = 'sound/lose.mp3';
@@ -363,9 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             closeResult() {
                 this.prizeResult = null;
-                // 모달 종료 시 다시 새로운 캐릭터로 복구
-                const charImg = document.getElementById('img-character');
-                if (charImg) charImg.src = window.IMG.character;
             },
 
             // ── Betting ────────────────────────────────────────────────
