@@ -217,8 +217,8 @@ class WheelController {
       g.appendChild(svgEl('rect', {
         x: -pW / 2, y: -pH / 2, width: pW, height: pH, rx: pH / 2,
         fill: isSpec ? '#2E1060' : '#DDCDFF',
-        stroke: isSpec ? '#FFD700' : 'rgba(194,165,255,0.5)',
-        'stroke-width': isSpec ? 1.5 : 1,
+        stroke: isSpec ? '#FFD700' : '#9A50D0',
+        'stroke-width': 1.5,
       }));
 
       const txt = svgEl('text', {
