@@ -1515,6 +1515,11 @@ footer {
     font-size: 10px;
   }
 
+  .btn-sound {
+    position: absolute;
+    left: 12px;
+  }
+
   .hero-character {
     display: none;
   }
