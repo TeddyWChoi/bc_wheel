@@ -475,8 +475,31 @@ header {
 .title-logo {
   width: min(560px, 55vw);
   object-fit: contain;
-  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 1));
   margin-bottom: 8px;
+  /* 속도를 늦추기 위해 1.2s에서 2.5s로 증가 */
+  animation: marquee-blink 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes marquee-blink {
+  0% {
+    filter:
+      drop-shadow(0 4px 18px rgba(0, 0, 0, 1)) drop-shadow(0 0 3px rgba(255, 50, 0, 0.3)) brightness(1);
+  }
+
+  33% {
+    filter:
+      drop-shadow(0 4px 18px rgba(0, 0, 0, 1)) drop-shadow(0 0 12px rgba(255, 230, 0, 0.7)) brightness(1.1);
+  }
+
+  66% {
+    filter:
+      drop-shadow(0 4px 18px rgba(0, 0, 0, 1)) drop-shadow(0 0 8px rgba(255, 50, 0, 0.6)) brightness(1.05);
+  }
+
+  100% {
+    filter:
+      drop-shadow(0 4px 18px rgba(0, 0, 0, 1)) drop-shadow(0 0 16px rgba(255, 250, 50, 0.8)) brightness(1.15);
+  }
 }
 
 /* ── 3-column row ─────────────────────────────────────────────── */
