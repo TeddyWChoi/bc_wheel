@@ -355,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.PRIZES[idx].multiplier === 100) {
                     const charImg = document.getElementById('img-character');
                     if (charImg) charImg.src = window.IMG.characterJackpotPose;
+                    this.startConfetti();
                 }
             },
 
@@ -363,6 +364,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Revert main character to normal pose
                 const charImg = document.getElementById('img-character');
                 if (charImg) charImg.src = window.IMG.character;
+                this.stopConfetti();
+            },
+
+            startConfetti() {
+                this._confettiActive = true;
+                const colors = ['#FFD700', '#ff0000', '#00ff00', '#ffffff', '#ff00ff'];
+                const frame = () => {
+                    if (!this._confettiActive || !window.confetti) return;
+
+                    window.confetti({
+                        particleCount: 7,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 1 },
+                        colors: colors,
+                        zIndex: 9999
+                    });
+                    window.confetti({
+                        particleCount: 7,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 1 },
+                        colors: colors,
+                        zIndex: 9999
+                    });
+                    requestAnimationFrame(frame);
+                };
+                frame();
+            },
+
+            stopConfetti() {
+                this._confettiActive = false;
+                if (window.confetti) {
+                    try { window.confetti.reset(); } catch (e) { }
+                }
             },
 
             // ── Betting ────────────────────────────────────────────────
