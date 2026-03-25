@@ -45,7 +45,8 @@ const IMG = {
   papaya: 'images/c7f1ea453a9a1a5d482f44a2d5f57a461989e587.png',
   blackshot: 'images/7dcd573ad4b4a28bfd658cc4cdebfa15d2c73628.png',
   titleLogo: 'images/fa8b6b33ed99ff6b6d7a428477578a67a98802cb.png',
-  character: 'images/9b703ebd3c9f8529a6a1a34ac35a249e1636eb06.png',
+  character: 'images/new_char.png',
+  old_character: 'images/9b703ebd3c9f8529a6a1a34ac35a249e1636eb06.png',
   mainBg: 'images/3f20a3cef9dbfa7e97d8e9dcd158d26bf7a67af1.png',
   bluepotion: 'images/230d1452f41f3031f96e68e7e3db44b07c311c8b.png',
 };
