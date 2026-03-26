@@ -94,6 +94,37 @@ function svgEl(tag, attrs) {
   return el;
 }
 
+// ── Procedural Sound ──────────────────────────────────────────
+class TickSound {
+  constructor() {
+    this.ctx = null;
+  }
+  _init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  play() {
+    this._init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    // Percussive tick sound: short freq sweep down
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1500, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.05);
+    
+    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+    
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.06);
+  }
+}
+const TICK_SOUND = new TickSound();
+
 // ── WheelController ─────────────────────────────────────────────
 class WheelController {
   constructor(containerId, onSpinEnd) {
@@ -125,6 +156,9 @@ class WheelController {
 
     // ── Static layer ──
     this._buildStatic();
+
+    // ── Ticker (Needle) ──
+    this._buildTicker();
   }
 
   _buildSVG() {
@@ -324,6 +358,13 @@ class WheelController {
     c.appendChild(this.dimmer);
   }
 
+  _buildTicker() {
+    this.tickerEl = document.createElement('div');
+    this.tickerEl.className = 'wheel-ticker';
+    // Needle pointing down, styled in CSS
+    this.container.appendChild(this.tickerEl);
+  }
+
   updateLoggedIn(loggedIn) {
     if (loggedIn) {
       this.dimmer.style.display = 'none';
@@ -358,6 +399,42 @@ class WheelController {
     this.isAnim = true;
     this.spinLayer.style.transition = `transform ${SPIN_DUR}ms ${ease}`;
     this.spinLayer.style.transform = `rotate(${target}deg)`;
+
+    // ── Rotation Tracking for Ticker ──
+    let lastSeg = -1;
+    const startTime = performance.now();
+    
+    const track = () => {
+      if (!this.isAnim) return;
+      
+      // Get current rotation from matrix
+      const style = window.getComputedStyle(this.spinLayer);
+      const matrix = style.transform || style.webkitTransform;
+      if (matrix && matrix !== 'none') {
+        const values = matrix.split('(')[1].split(')')[0].split(',');
+        const a = parseFloat(values[0]);
+        const b = parseFloat(values[1]);
+        let angle = Math.atan2(b, a) * (180 / Math.PI);
+        if (angle < 0) angle += 360;
+        
+        // Relative to the 0-degree point (top)
+        // Since we rotate the wheel clockwise, dividers pass the top
+        const currentSeg = Math.floor(angle / this.segDeg);
+        if (currentSeg !== lastSeg) {
+          lastSeg = currentSeg;
+          TICK_SOUND.play();
+          // Visual kick
+          this.tickerEl.classList.remove('tick-anim');
+          void this.tickerEl.offsetWidth; // trigger reflow
+          this.tickerEl.classList.add('tick-anim');
+        }
+      }
+      
+      if (performance.now() - startTime < SPIN_DUR + 1000) {
+        requestAnimationFrame(track);
+      }
+    };
+    requestAnimationFrame(track);
 
     setTimeout(() => {
       this.isAnim = false;
