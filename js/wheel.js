@@ -108,16 +108,22 @@ class TickSound {
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
-    osc.connect(gain);
+    const filter = this.ctx.createBiquadFilter();
+    
+    osc.connect(filter);
+    filter.connect(gain);
     gain.connect(this.ctx.destination);
     
-    // Percussive tick sound: short freq sweep down
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(1500, this.ctx.currentTime);
+    // Classic Wood: Triangle wave + Lowpass filter
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.05);
     
-    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+    filter.type = 'lowpass';
+    filter.frequency.value = 1200; // Remove harsh highs
+    
+    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
     
     osc.start();
     osc.stop(this.ctx.currentTime + 0.06);
