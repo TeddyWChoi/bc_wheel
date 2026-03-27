@@ -333,7 +333,6 @@ class WheelController {
     gemWrap.appendChild(gemImg);
 
     hubWrap.appendChild(crystalWrap);
-    hubWrap.appendChild(gemWrap);
     c.appendChild(hubWrap);
 
     // SPIN label (shown when logged in) — stored for toggling
