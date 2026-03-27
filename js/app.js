@@ -378,6 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const charImg = document.getElementById('img-character');
                 if (charImg) charImg.src = window.IMG.character;
                 this.stopConfetti();
+                // Clear Jackpot visuals on wheel
+                if (this.wheel) this.wheel.clearJackpot();
             },
 
             startConfetti() {

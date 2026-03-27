@@ -408,6 +408,7 @@ header {
   margin: 0 auto;
   position: relative;
   min-height: inherit;
+  overflow: visible;
 }
 
 .hero-character {
@@ -1076,7 +1077,9 @@ footer {
   border-radius: 8px;
   cursor: pointer;
   letter-spacing: 0.05em;
-  padding: 10px 32px;
+  padding: 10px 0;
+  width: 120px;
+  text-align: center;
   box-shadow: 0 2px 12px rgba(220, 38, 38, 0.4);
   transition: opacity 0.15s;
 }
@@ -1094,7 +1097,9 @@ footer {
   border-radius: 8px;
   cursor: pointer;
   letter-spacing: 0.05em;
-  padding: 10px 32px;
+  padding: 10px 0;
+  width: 120px;
+  text-align: center;
   box-shadow: 0 2px 12px rgba(34, 197, 94, 0.4);
   transition: opacity 0.15s;
 }
@@ -1493,6 +1498,16 @@ footer {
 
 /* ── Responsive: Mobile ───────────────────────────────────────── */
 @media (max-width: 768px) {
+  #wheel-flare {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .hero, .hero-inner {
+    overflow: hidden !important;
+  }
+
   .header-inner {
     padding: 0 12px;
     height: 50px;
@@ -1525,7 +1540,8 @@ footer {
   }
 
   .title-logo {
-    width: min(90vw, 400px);
+    width: min(90vw, 280px); /* Reduced from 400px */
+    margin-bottom: 8px;
   }
 
   .ticker {
@@ -1535,6 +1551,7 @@ footer {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    margin-bottom: 12px; /* Added spacing */
   }
 
   .main-row {
@@ -1595,7 +1612,16 @@ footer {
   }
 
   .login-overlay p {
-    font-size: 22px;
+    font-size: 18px; /* Reduced from 22px */
+    margin: 4px 0;
+  }
+
+  .login-subtext {
+    font-size: 12px; /* Added reduction */
+  }
+
+  .login-icon {
+    font-size: 32px;
   }
 
   footer {
@@ -1681,12 +1707,16 @@ footer {
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease-out;
 }
 
-.center-hub-btn:hover {
+#wheel-wrapper:not(.is-spinning) .center-hub-btn:hover {
   transform: scale(1.08);
   filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)) brightness(1.15);
 }
 
-.center-hub-btn:active {
+#wheel-wrapper.is-spinning .center-hub-btn {
+  cursor: default !important;
+}
+
+#wheel-wrapper:not(.is-spinning) .center-hub-btn:active {
   transform: scale(0.95);
   filter: brightness(0.9);
 }
@@ -1737,7 +1767,7 @@ footer {
   height: 52px;
   z-index: 10;
   transform-origin: 50% 10%;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.05s ease-out;
   pointer-events: none;
 }
 
@@ -1770,20 +1800,219 @@ footer {
   z-index: 1;
 }
 
-.wheel-ticker.tick-anim {
-  animation: ticker-kick 0.15s ease-out;
+.wheel-ticker.tick-anim-right {
+  animation: ticker-kick-right 0.1s ease-out;
 }
 
-@keyframes ticker-kick {
+.wheel-ticker.tick-anim-left {
+  animation: ticker-kick-left 0.1s ease-out;
+}
+
+/* ── Outer Ring Lights  ────────────────────────────────────────── */
+.wheel-lights-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.wheel-light {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  margin-top: -11px;
+  border-radius: 50%;
+  opacity: 1;
+  /* Always visible to show 'off' state */
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+/* WHITE LIGHT: Unlit (Grey) -> Lit (Golden White) */
+.wheel-light.white {
+  background: radial-gradient(circle, #888 20%, #444 80%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* RED LIGHT: Unlit (Dark Red) -> Lit (Vivid Red) */
+.wheel-light.red {
+  background: radial-gradient(circle, #4d0000 20%, #200000 80%);
+  border: 1px solid rgba(255, 0, 0, 0.1);
+}
+
+/* IDLE: Clear cross-blink (White ON -> Red ON) */
+.wheel-lights-wrap.idle .wheel-light.white {
+  animation: light-cross-white 1.2s infinite;
+}
+
+.wheel-lights-wrap.idle .wheel-light.red {
+  animation: light-cross-red 1.2s infinite;
+}
+
+/* SPINNING: Fast marquee chase */
+.wheel-lights-wrap.spinning .wheel-light {
+  animation: light-chase 1.2s infinite linear;
+  animation-delay: var(--delay);
+}
+
+/* WINNING: Rapid flash */
+.wheel-lights-wrap.winning .wheel-light {
+  animation: light-flash 0.15s infinite;
+}
+
+@keyframes light-cross-white {
+  0%, 49.9% { background: radial-gradient(circle, #fff 30%, #ffd700 70%); box-shadow: 0 0 15px #fff, 0 0 30px #ffd700; opacity: 1; }
+  50%, 100% { background: radial-gradient(circle, #888 20%, #444 80%); box-shadow: none; opacity: 0.6; }
+}
+
+@keyframes light-cross-red {
+  0%, 49.9% { background: radial-gradient(circle, #4d0000 20%, #200000 80%); box-shadow: none; opacity: 0.6; }
+  50%, 100% { background: radial-gradient(circle, #ff6666 30%, #ff0000 70%); box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000; opacity: 1; }
+}
+
+@keyframes light-chase {
+  0% {
+    opacity: 0.6;
+    box-shadow: none;
+  }
+
+  10%,
+  25% {
+    opacity: 1;
+    box-shadow: 0 0 20px #fff, 0 0 40px currentColor;
+  }
+
+  45%,
+  100% {
+    opacity: 0.6;
+    box-shadow: none;
+  }
+}
+
+@keyframes light-flash {
+  0% {
+    background: transparent;
+  }
+
+  50% {
+    background: #fff;
+    box-shadow: 0 0 30px #fff, 0 0 60px #fff;
+  }
+
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes ticker-kick-right {
   0% {
     transform: translateX(-50%) rotate(0deg);
   }
 
-  20% {
-    transform: translateX(-50%) rotate(-25deg);
+  25% {
+    transform: translateX(-50%) rotate(22deg);
   }
 
   100% {
     transform: translateX(-50%) rotate(0deg);
   }
+}
+
+@keyframes ticker-kick-left {
+  0% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+
+  25% {
+    transform: translateX(-50%) rotate(-22deg);
+  }
+
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+}
+
+.wheel-ticker.pushed-right {
+  transform: translateX(-50%) rotate(25deg);
+  transition: transform 0.05s ease-out;
+}
+
+.wheel-ticker.pushed-left {
+  transform: translateX(-50%) rotate(-25deg);
+  transition: transform 0.03s ease-out;
+}
+
+/* ── Jackpot Effects ────────────────────────────────────────── */
+#wheel-flare {
+  position: absolute;
+  top: 440px; /* Aligned to center of main-row */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2600px;
+  height: 2600px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(255, 215, 0, 0.4) 15deg,
+    transparent 30deg,
+    rgba(255, 255, 255, 0.3) 45deg,
+    transparent 60deg,
+    rgba(212, 175, 55, 0.4) 75deg,
+    transparent 90deg,
+    rgba(255, 215, 0, 0.4) 105deg,
+    transparent 120deg,
+    rgba(255, 255, 255, 0.3) 135deg,
+    transparent 150deg,
+    rgba(212, 175, 55, 0.4) 165deg,
+    transparent 180deg,
+    rgba(255, 215, 0, 0.4) 195deg,
+    transparent 210deg,
+    rgba(255, 255, 255, 0.3) 225deg,
+    transparent 240deg,
+    rgba(212, 175, 55, 0.4) 255deg,
+    transparent 270deg,
+    rgba(255, 215, 0, 0.4) 285deg,
+    transparent 300deg,
+    rgba(255, 255, 255, 0.3) 315deg,
+    transparent 330deg,
+    rgba(212, 175, 55, 0.4) 345deg,
+    transparent 360deg
+  );
+  filter: blur(35px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1; /* Behind other hero content */
+  transition: opacity 1.5s ease-out;
+  mask-image: radial-gradient(circle, transparent 10%, black 20%, black 80%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle, transparent 10%, black 20%, black 80%, transparent 100%);
+}
+
+.jackpot-active #wheel-flare {
+  opacity: 1;
+  animation: jackpot-flare-rotate 8s infinite linear;
+}
+
+@keyframes jackpot-flare-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Vegas Strobe Lights */
+.wheel-lights-wrap.jackpot .wheel-light {
+  animation: jackpot-strobe 0.1s infinite !important;
+}
+
+@keyframes jackpot-strobe {
+  0% { background: #fff; box-shadow: 0 0 20px #fff; }
+  25% { background: #ffd700; box-shadow: 0 0 30px #ffd700; }
+  50% { background: #ff0000; box-shadow: 0 0 25px #ff0000; }
+  75% { background: #00ffff; box-shadow: 0 0 30px #00ffff; }
+  100% { background: #ff00ff; box-shadow: 0 0 25px #ff00ff; }
+}
+
+.wheel-col {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* Add this for absolute centering of flare */
 }

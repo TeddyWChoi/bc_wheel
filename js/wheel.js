@@ -63,8 +63,8 @@ const INNER_R = 58;
 const LABEL_R = 165;
 const COIN_R = 120;
 const COIN_SZ = 51;
-const DOT_R = 234;
-const N_DOTS = 12;
+const DOT_R = 227; // Adjusted inward for perfect alignment with ring gems
+const N_DOTS = 24; // Realized the image has 24 dots (12 red, 12 white)
 const SPIN_DUR = 7000;
 
 // ── Math helpers ────────────────────────────────────────────────
@@ -143,6 +143,9 @@ class WheelController {
 
     // ── Ticker (Needle) ──
     this._buildTicker();
+
+    // ── Outer Ring Lights ──
+    this._buildLights();
   }
 
   _buildSVG() {
@@ -326,14 +329,51 @@ class WheelController {
     this.spinLabelEl.innerHTML = `<p>SPIN</p>`;
     c.appendChild(this.spinLabelEl);
 
-    // Outer ring image
-    const ringWrap = document.createElement('div');
-    ringWrap.style.cssText = `position:absolute;left:7px;top:7px;width:486px;height:486px;pointer-events:none;z-index:8;`;
-    const ringImg = document.createElement('img');
-    ringImg.src = IMG.ring; ringImg.alt = '';
-    ringImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
-    ringWrap.appendChild(ringImg);
-    c.appendChild(ringWrap);
+    // ── Outer Ring Reconstruction (Vector) ──
+    const ringSvg = svgEl('svg', { 
+      width: W, height: W, viewBox: `0 0 ${W} ${W}`, 
+      style: `position:absolute;left:0;top:0;width:${W}px;height:${W}px;pointer-events:none;z-index:8;` 
+    });
+    
+    const defs = svgEl('defs', {});
+    const goldGrad = svgEl('linearGradient', { id: 'vRingGold', x1: '0%', y1: '0%', x2: '100%', y2: '100%' });
+    goldGrad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#fde68a' }));
+    goldGrad.appendChild(svgEl('stop', { offset: '45%', 'stop-color': '#b45309' }));
+    goldGrad.appendChild(svgEl('stop', { offset: '55%', 'stop-color': '#b45309' }));
+    goldGrad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#fde68a' }));
+    defs.appendChild(goldGrad);
+    
+    const slotGrad = svgEl('radialGradient', { id: 'vSlotGrad' });
+    slotGrad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#111' }));
+    slotGrad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#333' }));
+    defs.appendChild(slotGrad);
+    ringSvg.appendChild(defs);
+    
+    const ringGroup = svgEl('g', { class: 'wheel-ring-vector' });
+    // 1. Outer Gold Border
+    ringGroup.appendChild(svgEl('circle', {
+      cx: CX, cy: CY, r: 238, fill: 'none', stroke: 'url(#vRingGold)', 'stroke-width': 4
+    }));
+    // 2. Main Purple Track (The part similar to original image)
+    ringGroup.appendChild(svgEl('circle', {
+      cx: CX, cy: CY, r: 227, fill: 'none', stroke: '#2e1060', 'stroke-width': 22
+    }));
+    // 3. Inner Gold Border
+    ringGroup.appendChild(svgEl('circle', {
+      cx: CX, cy: CY, r: 216, fill: 'none', stroke: 'url(#vRingGold)', 'stroke-width': 3
+    }));
+
+    // 4. Subtle Socket Bezels (Optional but adds depth)
+    for (let i = 0; i < N_DOTS; i++) {
+      const deg = i * (360 / N_DOTS);
+      const pos = polar(CX, CY, DOT_R, deg);
+      ringGroup.appendChild(svgEl('circle', {
+        cx: pos.x.toFixed(3), cy: pos.y.toFixed(3), r: 12,
+        fill: 'none', stroke: '#fde68a', 'stroke-width': 0.5, 'stroke-opacity': 0.3
+      }));
+    }
+    ringSvg.appendChild(ringGroup);
+    c.appendChild(ringSvg);
 
     // Dimmer overlay (always present, shown/hidden by updateLoggedIn)
     this.dimmer = document.createElement('div');
@@ -348,6 +388,27 @@ class WheelController {
     this.container.appendChild(this.tickerEl);
   }
 
+  _buildLights() {
+    this.lightsWrap = document.createElement('div');
+    this.lightsWrap.className = 'wheel-lights-wrap idle'; // Start with idle state
+    this.lightsWrap.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:9;`;
+    
+    for (let i = 0; i < N_DOTS; i++) {
+      const deg = i * (360 / N_DOTS);
+      const pos = polar(CX, CY, DOT_R, deg);
+      const light = document.createElement('div');
+      // Red/White alternating pattern: i=0 is White (12 o'clock)
+      const colorClass = i % 2 === 0 ? 'white' : 'red';
+      light.className = `wheel-light light-${i} ${colorClass}`;
+      light.style.left = `${pos.x}px`;
+      light.style.top = `${pos.y}px`;
+      // Faster delay for marquee effect because we have more dots
+      light.style.setProperty('--delay', `${i * 0.05}s`);
+      this.lightsWrap.appendChild(light);
+    }
+    this.container.appendChild(this.lightsWrap);
+  }
+
   updateLoggedIn(loggedIn) {
     if (loggedIn) {
       this.dimmer.style.display = 'none';
@@ -359,7 +420,15 @@ class WheelController {
   }
 
   spin(prizeIndex) {
-    const idx = (prizeIndex !== undefined) ? prizeIndex : Math.floor(Math.random() * this.n);
+    this.isAnim = true;
+    this.container.classList.add('is-spinning');
+    let idx;
+    if (prizeIndex !== undefined) {
+      idx = prizeIndex;
+    } else {
+      // 🚨 TEST PROBABILITY HACK: 50% chance to hit Jackpot (Index 5) for visual testing
+      idx = Math.random() < 0.5 ? 5 : Math.floor(Math.random() * (this.n - 1));
+    }
     const midpoint = (idx + 0.5) * this.segDeg;
     const base = Math.ceil(this.rotation / 360) * 360;
     const spins = 5 + Math.floor(Math.random() * 4);
@@ -383,14 +452,32 @@ class WheelController {
     this.spinLayer.style.transition = `transform ${SPIN_DUR}ms ${ease}`;
     this.spinLayer.style.transform = `rotate(${target}deg)`;
 
+    // ── Lights: Spin State ──
+    if (this.lightsWrap) {
+      this.lightsWrap.className = 'wheel-lights-wrap spinning';
+    }
+
     // ── Rotation Tracking for Ticker ──
+    const getCurrentAngle = () => {
+      const style = window.getComputedStyle(this.spinLayer);
+      const matrix = style.transform || style.webkitTransform;
+      if (matrix && matrix !== 'none') {
+        const values = matrix.split('(')[1].split(')')[0].split(',');
+        const a = parseFloat(values[0]);
+        const b = parseFloat(values[1]);
+        let angle = Math.atan2(b, a) * (180 / Math.PI);
+        return (angle < 0) ? angle + 360 : angle;
+      }
+      return 0;
+    };
+
     let lastSeg = -1;
+    let lastTickTime = 0;
+    let lastAngle = getCurrentAngle();
     const startTime = performance.now();
-    
     const track = () => {
       if (!this.isAnim) return;
       
-      // Get current rotation from matrix
       const style = window.getComputedStyle(this.spinLayer);
       const matrix = style.transform || style.webkitTransform;
       if (matrix && matrix !== 'none') {
@@ -400,16 +487,47 @@ class WheelController {
         let angle = Math.atan2(b, a) * (180 / Math.PI);
         if (angle < 0) angle += 360;
         
-        // Relative to the 0-degree point (top)
-        // Since we rotate the wheel clockwise, dividers pass the top
+        // Calculate shortest signed difference for direction
+        const diff = ((angle - lastAngle + 540) % 360) - 180;
+        const now = performance.now();
+        const interval = now - lastTickTime;
+
+        if (Math.abs(diff) > 0.05) {
+          const isCW = diff > 0; 
+          lastAngle = angle;
+
+          if (interval < 80) {
+            // HIGH SPEED: Continuous tilt (wind-swept feel)
+            this.tickerEl.classList.toggle('pushed-right', !isCW);
+            this.tickerEl.classList.toggle('pushed-left', isCW);
+          } else {
+            // LOW SPEED: Elastic snap (return to center)
+            // We only let the 'tick-anim' handle the momentary kick
+            this.tickerEl.classList.remove('pushed-right', 'pushed-left');
+          }
+        } else if (Math.abs(diff) < 0.01) {
+          // Snap back to center if motion is negligible
+          this.tickerEl.classList.remove('pushed-right', 'pushed-left');
+        }
+
         const currentSeg = Math.floor(angle / this.segDeg);
         if (currentSeg !== lastSeg) {
           lastSeg = currentSeg;
+          const now = performance.now();
+          const interval = now - lastTickTime;
+          lastTickTime = now;
+
           TICK_SOUND.play();
-          // Visual kick
-          this.tickerEl.classList.remove('tick-anim');
-          void this.tickerEl.offsetWidth; // trigger reflow
-          this.tickerEl.classList.add('tick-anim');
+          
+          if (interval < 80) {
+            // High speed: handled by frame-based toggles
+          } else {
+            // Low speed: Standard kick animation
+            const isRightStyle = this.tickerEl.classList.contains('pushed-right');
+            this.tickerEl.classList.remove('pushed-right', 'pushed-left', 'tick-anim-right', 'tick-anim-left');
+            void this.tickerEl.offsetWidth; 
+            this.tickerEl.classList.add(isRightStyle ? 'tick-anim-right' : 'tick-anim-left');
+          }
         }
       }
       
@@ -419,11 +537,45 @@ class WheelController {
     };
     requestAnimationFrame(track);
 
+    // Clear previous jackpot state
+    document.body.classList.remove('jackpot-active');
+    if (this.lightsWrap) this.lightsWrap.classList.remove('jackpot');
+
     setTimeout(() => {
       this.isAnim = false;
+      this.container.classList.remove('is-spinning');
       this.spinLayer.style.transition = 'none';
-      if (this.onSpinEnd) this.onSpinEnd(idx);
+      if (this.tickerEl) {
+        this.tickerEl.classList.remove('pushed-right', 'pushed-left', 'tick-anim-right', 'tick-anim-left');
+      }
+      
+      // Jackpot Trigger
+      const resultObj = PRIZES[idx];
+      if (resultObj && resultObj.name === 'x100') {
+        document.body.classList.add('jackpot-active');
+        if (this.lightsWrap) this.lightsWrap.classList.add('jackpot');
+      }
+
+      // ── Lights: Stop State ──
+      if (this.lightsWrap) {
+        this.lightsWrap.className = 'wheel-lights-wrap winning';
+        setTimeout(() => {
+          this.lightsWrap.className = 'wheel-lights-wrap idle';
+        }, 2000);
+      }
+
+      if (this.onSpinEnd) {
+        this.onSpinEnd(idx);
+      }
     }, SPIN_DUR + 600);
+  }
+
+  clearJackpot() {
+    document.body.classList.remove('jackpot-active');
+    if (this.lightsWrap) {
+      this.lightsWrap.classList.remove('jackpot');
+      this.lightsWrap.className = 'wheel-lights-wrap idle';
+    }
   }
 }
 
