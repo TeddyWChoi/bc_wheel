@@ -98,30 +98,24 @@ function svgEl(tag, attrs) {
 class TickSound {
   constructor() {
     this.ctx = null;
+    this.buffer = null;
   }
-  _init() {
+  async _init() {
     if (this.ctx) return;
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      const resp = await fetch('sound/tik.mp3');
+      const arrayBuffer = await resp.arrayBuffer();
+      this.buffer = await this.ctx.decodeAudioData(arrayBuffer);
+    } catch (e) { console.error('TickSound init failed', e); }
   }
   play() {
     this._init();
-    if (!this.ctx) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    
-    // Metallic Ticker: Sharp, high-pitched sine sweep
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(2500, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.03);
-    
-    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.03);
-    
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.04);
+    if (!this.ctx || !this.buffer) return;
+    const source = this.ctx.createBufferSource();
+    source.buffer = this.buffer;
+    source.connect(this.ctx.destination);
+    source.start(0);
   }
 }
 const TICK_SOUND = new TickSound();
