@@ -442,8 +442,8 @@ class WheelController {
       'cubic-bezier(0.1, 0.7, 0.7, 1.0)',   // 1) Normal: Firm rocket start, steady slow down
       'cubic-bezier(0.05, 0.8, 0.6, 1.0)',  // 2) Normal: Harder start, long crawl to stop
       'cubic-bezier(0.15, 0.85, 0.8, 1.0)', // 3) Normal: Smooth explosion, very slow tail
-      'cubic-bezier(0.05, 0.8, 0.7, 1.08)', // 4) Bounce: Explodes, coasts past by ~8%, drags back
-      'cubic-bezier(0.1, 0.9, 0.8, 1.15)'   // 5) Huge Bounce: Explodes, coasts past by ~15%, slowly drags back
+      'cubic-bezier(0.05, 0.8, 0.7, 1.02)', // 4) Refined: Subtle bounce (2%), barely noticeable settlement
+      'cubic-bezier(0.1, 1.0, 0.8, 1.03)'   // 5) Refined: Majestic Bounce (3%), elegant and smooth
     ];
     const ease = SPIN_EASES[Math.floor(Math.random() * SPIN_EASES.length)];
 

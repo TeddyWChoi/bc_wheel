@@ -285,6 +285,7 @@ select option {
 #app-root {
   position: relative;
   z-index: 2;
+  overflow: hidden;
 }
 
 /* ── Header ───────────────────────────────────────────────────── */
@@ -1504,7 +1505,8 @@ footer {
     height: 0 !important;
   }
 
-  .hero, .hero-inner {
+  .hero,
+  .hero-inner {
     overflow: hidden !important;
   }
 
@@ -1540,7 +1542,8 @@ footer {
   }
 
   .title-logo {
-    width: min(90vw, 280px); /* Reduced from 400px */
+    width: min(90vw, 280px);
+    /* Reduced from 400px */
     margin-bottom: 8px;
   }
 
@@ -1551,7 +1554,8 @@ footer {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    margin-bottom: 12px; /* Added spacing */
+    margin-bottom: 12px;
+    /* Added spacing */
   }
 
   .main-row {
@@ -1612,12 +1616,14 @@ footer {
   }
 
   .login-overlay p {
-    font-size: 18px; /* Reduced from 22px */
+    font-size: 18px;
+    /* Reduced from 22px */
     margin: 4px 0;
   }
 
   .login-subtext {
-    font-size: 12px; /* Added reduction */
+    font-size: 12px;
+    /* Added reduction */
   }
 
   .login-icon {
@@ -1860,13 +1866,37 @@ footer {
 }
 
 @keyframes light-cross-white {
-  0%, 49.9% { background: radial-gradient(circle, #fff 30%, #ffd700 70%); box-shadow: 0 0 15px #fff, 0 0 30px #ffd700; opacity: 1; }
-  50%, 100% { background: radial-gradient(circle, #888 20%, #444 80%); box-shadow: none; opacity: 0.6; }
+
+  0%,
+  49.9% {
+    background: radial-gradient(circle, #fff 30%, #ffd700 70%);
+    box-shadow: 0 0 15px #fff, 0 0 30px #ffd700;
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    background: radial-gradient(circle, #888 20%, #444 80%);
+    box-shadow: none;
+    opacity: 0.6;
+  }
 }
 
 @keyframes light-cross-red {
-  0%, 49.9% { background: radial-gradient(circle, #4d0000 20%, #200000 80%); box-shadow: none; opacity: 0.6; }
-  50%, 100% { background: radial-gradient(circle, #ff6666 30%, #ff0000 70%); box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000; opacity: 1; }
+
+  0%,
+  49.9% {
+    background: radial-gradient(circle, #4d0000 20%, #200000 80%);
+    box-shadow: none;
+    opacity: 0.6;
+  }
+
+  50%,
+  100% {
+    background: radial-gradient(circle, #ff6666 30%, #ff0000 70%);
+    box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+    opacity: 1;
+  }
 }
 
 @keyframes light-chase {
@@ -1944,43 +1974,43 @@ footer {
 /* ── Jackpot Effects ────────────────────────────────────────── */
 #wheel-flare {
   position: absolute;
-  top: 440px; /* Aligned to center of main-row */
+  top: 440px;
+  /* Aligned to center of main-row */
   left: 50%;
   transform: translate(-50%, -50%);
   width: 2600px;
   height: 2600px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    rgba(255, 215, 0, 0.4) 15deg,
-    transparent 30deg,
-    rgba(255, 255, 255, 0.3) 45deg,
-    transparent 60deg,
-    rgba(212, 175, 55, 0.4) 75deg,
-    transparent 90deg,
-    rgba(255, 215, 0, 0.4) 105deg,
-    transparent 120deg,
-    rgba(255, 255, 255, 0.3) 135deg,
-    transparent 150deg,
-    rgba(212, 175, 55, 0.4) 165deg,
-    transparent 180deg,
-    rgba(255, 215, 0, 0.4) 195deg,
-    transparent 210deg,
-    rgba(255, 255, 255, 0.3) 225deg,
-    transparent 240deg,
-    rgba(212, 175, 55, 0.4) 255deg,
-    transparent 270deg,
-    rgba(255, 215, 0, 0.4) 285deg,
-    transparent 300deg,
-    rgba(255, 255, 255, 0.3) 315deg,
-    transparent 330deg,
-    rgba(212, 175, 55, 0.4) 345deg,
-    transparent 360deg
-  );
+  background: conic-gradient(from 0deg,
+      transparent 0deg,
+      rgba(255, 215, 0, 0.4) 15deg,
+      transparent 30deg,
+      rgba(255, 255, 255, 0.3) 45deg,
+      transparent 60deg,
+      rgba(212, 175, 55, 0.4) 75deg,
+      transparent 90deg,
+      rgba(255, 215, 0, 0.4) 105deg,
+      transparent 120deg,
+      rgba(255, 255, 255, 0.3) 135deg,
+      transparent 150deg,
+      rgba(212, 175, 55, 0.4) 165deg,
+      transparent 180deg,
+      rgba(255, 215, 0, 0.4) 195deg,
+      transparent 210deg,
+      rgba(255, 255, 255, 0.3) 225deg,
+      transparent 240deg,
+      rgba(212, 175, 55, 0.4) 255deg,
+      transparent 270deg,
+      rgba(255, 215, 0, 0.4) 285deg,
+      transparent 300deg,
+      rgba(255, 255, 255, 0.3) 315deg,
+      transparent 330deg,
+      rgba(212, 175, 55, 0.4) 345deg,
+      transparent 360deg);
   filter: blur(35px);
   opacity: 0;
   pointer-events: none;
-  z-index: 1; /* Behind other hero content */
+  z-index: 1;
+  /* Behind other hero content */
   transition: opacity 1.5s ease-out;
   mask-image: radial-gradient(circle, transparent 10%, black 20%, black 80%, transparent 100%);
   -webkit-mask-image: radial-gradient(circle, transparent 10%, black 20%, black 80%, transparent 100%);
@@ -1992,8 +2022,13 @@ footer {
 }
 
 @keyframes jackpot-flare-rotate {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 /* Vegas Strobe Lights */
@@ -2002,11 +2037,30 @@ footer {
 }
 
 @keyframes jackpot-strobe {
-  0% { background: #fff; box-shadow: 0 0 20px #fff; }
-  25% { background: #ffd700; box-shadow: 0 0 30px #ffd700; }
-  50% { background: #ff0000; box-shadow: 0 0 25px #ff0000; }
-  75% { background: #00ffff; box-shadow: 0 0 30px #00ffff; }
-  100% { background: #ff00ff; box-shadow: 0 0 25px #ff00ff; }
+  0% {
+    background: #fff;
+    box-shadow: 0 0 20px #fff;
+  }
+
+  25% {
+    background: #ffd700;
+    box-shadow: 0 0 30px #ffd700;
+  }
+
+  50% {
+    background: #ff0000;
+    box-shadow: 0 0 25px #ff0000;
+  }
+
+  75% {
+    background: #00ffff;
+    box-shadow: 0 0 30px #00ffff;
+  }
+
+  100% {
+    background: #ff00ff;
+    box-shadow: 0 0 25px #ff00ff;
+  }
 }
 
 .wheel-col {
@@ -2014,5 +2068,6 @@ footer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative; /* Add this for absolute centering of flare */
+  position: relative;
+  /* Add this for absolute centering of flare */
 }
