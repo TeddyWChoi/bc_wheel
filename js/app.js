@@ -384,25 +384,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             startConfetti() {
                 this._confettiActive = true;
+                const canvas = document.getElementById('confetti-canvas');
+                if (!canvas) return;
+                
+                // Create a private confetti instance for our specific canvas
+                if (!this._myConfetti) {
+                    this._myConfetti = confetti.create(canvas, { resize: true });
+                }
+
                 const colors = ['#FFD700', '#ff0000', '#00ff00', '#ffffff', '#ff00ff'];
                 const frame = () => {
-                    if (!this._confettiActive || !window.confetti) return;
+                    if (!this._confettiActive) return;
 
-                    window.confetti({
+                    this._myConfetti({
                         particleCount: 7,
                         angle: 60,
                         spread: 55,
                         origin: { x: 0, y: 1 },
-                        colors: colors,
-                        zIndex: 250
+                        colors: colors
                     });
-                    window.confetti({
+                    this._myConfetti({
                         particleCount: 7,
                         angle: 120,
                         spread: 55,
                         origin: { x: 1, y: 1 },
-                        colors: colors,
-                        zIndex: 250
+                        colors: colors
                     });
                     requestAnimationFrame(frame);
                 };
@@ -411,8 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             stopConfetti() {
                 this._confettiActive = false;
-                if (window.confetti) {
-                    try { window.confetti.reset(); } catch (e) { }
+                if (this._myConfetti) {
+                    try { this._myConfetti.reset(); } catch (e) { }
                 }
             },
 

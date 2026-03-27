@@ -318,6 +318,9 @@
       <!-- MODALS                                                -->
       <!-- ══════════════════════════════════════════════════════ -->
 
+      <!-- Confetti Canvas (Inside app-root stacking context) -->
+      <canvas id="confetti-canvas"></canvas>
+
       <!-- ── Confirm Modal ──────────────────────────────────── -->
       <div class="modal-backdrop" v-if="confirmType" style="z-index:200;" @click="confirmType = null">
         <div class="confirm-card" @click.stop>

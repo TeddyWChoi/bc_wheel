@@ -1693,6 +1693,7 @@ footer {
   .btn-cancel,
   .btn-confirm {
     padding: 12px 24px;
+    width: 100%;
   }
 }
 
@@ -2070,4 +2071,15 @@ footer {
   align-items: center;
   position: relative;
   /* Add this for absolute centering of flare */
+}
+
+/* Confetti Canvas */
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000; /* Above the wheel (z:2), but below the Result Modal (z:5000) */
+  pointer-events: none;
 }
