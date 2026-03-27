@@ -97,25 +97,14 @@ function svgEl(tag, attrs) {
 // ── Procedural Sound ──────────────────────────────────────────
 class TickSound {
   constructor() {
-    this.ctx = null;
-    this.buffer = null;
-  }
-  async _init() {
-    if (this.ctx) return;
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    try {
-      const resp = await fetch('sound/tik.mp3');
-      const arrayBuffer = await resp.arrayBuffer();
-      this.buffer = await this.ctx.decodeAudioData(arrayBuffer);
-    } catch (e) { console.error('TickSound init failed', e); }
+    this.audioPool = Array.from({ length: 10 }, () => new Audio('sound/tik.mp3'));
+    this.index = 0;
   }
   play() {
-    this._init();
-    if (!this.ctx || !this.buffer) return;
-    const source = this.ctx.createBufferSource();
-    source.buffer = this.buffer;
-    source.connect(this.ctx.destination);
-    source.start(0);
+    const sound = this.audioPool[this.index];
+    sound.currentTime = 0;
+    sound.play().catch(() => {}); // Ignore errors if not yet interacted
+    this.index = (this.index + 1) % this.audioPool.length;
   }
 }
 const TICK_SOUND = new TickSound();
