@@ -1942,7 +1942,7 @@ footer {
   }
 
   25% {
-    transform: translateX(-50%) rotate(22deg);
+    transform: translateX(-50%) rotate(32deg);
   }
 
   100% {
@@ -1956,7 +1956,7 @@ footer {
   }
 
   25% {
-    transform: translateX(-50%) rotate(-22deg);
+    transform: translateX(-50%) rotate(-32deg);
   }
 
   100% {
@@ -1965,12 +1965,12 @@ footer {
 }
 
 .wheel-ticker.pushed-right {
-  transform: translateX(-50%) rotate(25deg);
+  transform: translateX(-50%) rotate(34deg);
   transition: transform 0.05s ease-out;
 }
 
 .wheel-ticker.pushed-left {
-  transform: translateX(-50%) rotate(-25deg);
+  transform: translateX(-50%) rotate(-34deg);
   transition: transform 0.03s ease-out;
 }
 

@@ -439,11 +439,11 @@ class WheelController {
     // C2 x is high -> long, steady slowdown.
     // y2 > 1.0 causes the bounce back.
     const SPIN_EASES = [
-      'cubic-bezier(0.1, 0.9, 0.7, 1.0)',   // 1) Fast start, long steady slow down
-      'cubic-bezier(0.1, 1.0, 0.85, 1.0)',  // 2) Explosive start, very long crawl to stop
-      'cubic-bezier(0.2, 1.0, 0.9, 1.0)',   // 3) Maximum crawl, extremely slow tail
-      'cubic-bezier(0.1, 1.0, 0.8, 1.02)',  // 4) Refined: Long tension with subtle bounce (2%)
-      'cubic-bezier(0.15, 1.0, 0.9, 1.03)'  // 5) Refined: Majestic Bounce (3%) with extreme tail
+      'cubic-bezier(0.1, 0.9, 0.7, 1.04)',   // 1) Fast start, 4% bounce
+      'cubic-bezier(0.1, 1.0, 0.85, 1.05)',  // 2) Explosive start, 5% majestic crawl
+      'cubic-bezier(0.2, 1.0, 0.9, 1.05)',   // 3) Extreme tail, 5% crawl to stop
+      'cubic-bezier(0.1, 1.0, 0.8, 1.045)',  // 4) Tension with 4.5% bounce
+      'cubic-bezier(0.15, 1.0, 0.9, 1.05)'   // 5) Majestic 5% bounce with maximum crawl
     ];
     const ease = SPIN_EASES[Math.floor(Math.random() * SPIN_EASES.length)];
 
