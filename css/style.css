@@ -1023,7 +1023,7 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0);
+  /* background: rgba(0, 0, 0, 0.45); */
   padding: 0;
 }
 
@@ -1041,7 +1041,9 @@ footer {
 
 /* ── Confirm Modal ────────────────────────────────────────────── */
 .confirm-card {
-  background: linear-gradient(145deg, #1a0845, #2d1070);
+  background: linear-gradient(145deg, rgba(26, 8, 69, 0.5), rgba(45, 16, 112, 0.5));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1.5px solid rgba(212, 175, 55, 0.5);
   box-shadow: 0 0 30px rgba(120, 40, 200, 0.4);
   max-width: 28rem;
@@ -2080,6 +2082,7 @@ footer {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1000; /* Above the wheel (z:2), but below the Result Modal (z:5000) */
+  z-index: 1000;
+  /* Above the wheel (z:2), but below the Result Modal (z:5000) */
   pointer-events: none;
 }

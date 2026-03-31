@@ -431,7 +431,7 @@ class WheelController {
     }
     const midpoint = (idx + 0.5) * this.segDeg;
     const base = Math.ceil(this.rotation / 360) * 360;
-    const spins = 5 + Math.floor(Math.random() * 4);
+    const spins = 6 + Math.floor(Math.random() * 5); // 6 to 10 full rotations for faster start
     const target = base + (spins + 1) * 360 - midpoint;
 
     // 5 different easing curves (True Ease-Out Physical Start)
@@ -439,11 +439,11 @@ class WheelController {
     // C2 x is high -> long, steady slowdown.
     // y2 > 1.0 causes the bounce back.
     const SPIN_EASES = [
-      'cubic-bezier(0.1, 0.7, 0.7, 1.0)',   // 1) Normal: Firm rocket start, steady slow down
-      'cubic-bezier(0.05, 0.8, 0.6, 1.0)',  // 2) Normal: Harder start, long crawl to stop
-      'cubic-bezier(0.15, 0.85, 0.8, 1.0)', // 3) Normal: Smooth explosion, very slow tail
-      'cubic-bezier(0.05, 0.8, 0.7, 1.02)', // 4) Refined: Subtle bounce (2%), barely noticeable settlement
-      'cubic-bezier(0.1, 1.0, 0.8, 1.03)'   // 5) Refined: Majestic Bounce (3%), elegant and smooth
+      'cubic-bezier(0.1, 0.9, 0.7, 1.0)',   // 1) Fast start, long steady slow down
+      'cubic-bezier(0.1, 1.0, 0.85, 1.0)',  // 2) Explosive start, very long crawl to stop
+      'cubic-bezier(0.2, 1.0, 0.9, 1.0)',   // 3) Maximum crawl, extremely slow tail
+      'cubic-bezier(0.1, 1.0, 0.8, 1.02)',  // 4) Refined: Long tension with subtle bounce (2%)
+      'cubic-bezier(0.15, 1.0, 0.9, 1.03)'  // 5) Refined: Majestic Bounce (3%) with extreme tail
     ];
     const ease = SPIN_EASES[Math.floor(Math.random() * SPIN_EASES.length)];
 
