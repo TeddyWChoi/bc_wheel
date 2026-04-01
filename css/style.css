@@ -1780,7 +1780,7 @@ footer {
   pointer-events: none;
 }
 
-/* The Gem */
+
 .wheel-ticker::before {
   content: '';
   position: absolute;
@@ -2085,4 +2085,49 @@ footer {
   z-index: 1000;
   /* Above the wheel (z:2), but below the Result Modal (z:5000) */
   pointer-events: none;
+}
+
+/* ── Slot Test Selector ───────────────────────────────────────── */
+.slot-test-selector {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  background: rgba(26, 8, 69, 0.85);
+  padding: 5px 12px;
+  border: 1px solid #ae905e;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+}
+
+.slot-test-title {
+  font-weight: 700;
+  color: #FFD700;
+}
+
+.slot-test-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.slot-test-label input {
+  cursor: pointer;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .slot-test-selector {
+    top: 60px; /* Below sticky header on mobile */
+    font-size: 10px;
+    padding: 4px 10px;
+  }
 }

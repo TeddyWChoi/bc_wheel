@@ -28,6 +28,20 @@
   <div id="vue-app">
     <div id="app-root">
 
+      <!-- ══ SLOT TEST SELECTOR (FOR DEVELOPMENT) ══ -->
+      <div class="slot-test-selector">
+        <span class="slot-test-title">Slot Test:</span>
+        <label class="slot-test-label">
+          <input type="radio" value="6" v-model.number="slotCount" /> 6
+        </label>
+        <label class="slot-test-label">
+          <input type="radio" value="8" v-model.number="slotCount" /> 8
+        </label>
+        <label class="slot-test-label">
+          <input type="radio" value="10" v-model.number="slotCount" /> 10
+        </label>
+      </div>
+
       <!-- ══ HEADER ════════════════════════════════════════════ -->
       <header>
         <div class="header-inner">
@@ -159,7 +173,7 @@
                 <!-- Countdown -->
                 <div class="countdown-wrap">
                   <div class="countdown-box">
-                    <p class="countdown-label">Mar.01 2026 to Mar.31 2026(CET)</p>
+                    <p class="countdown-label">APR.01 2026 to APR.30 2026(CEST)</p>
                     <div class="countdown-digits">
 
                       <div class="countdown-unit">
@@ -325,16 +339,9 @@
       <div class="modal-backdrop" v-if="confirmType" style="z-index:200;" @click="confirmType = null">
         <div class="confirm-card" @click.stop>
           <div class="confirm-text">
-            <template v-if="confirmType === 'usedFree'">
-              You have already used today's free spin.<br />
-              Would you like to purchase another spin for
-              <span class="confirm-highlight">70 Gems</span>?
-            </template>
-            <template v-else>
-              You have wagered
-              <span class="confirm-highlight">{{ betAmount }} BC</span>.
-              Spin the wheel now?
-            </template>
+            You have wagered
+            <span class="confirm-highlight">{{ betAmount }} BC</span>.
+            Spin the wheel now?
           </div>
           <div class="confirm-btns">
             <button class="btn-confirm" @click="handleConfirmSpin">CONFIRM</button>

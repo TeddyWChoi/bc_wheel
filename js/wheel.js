@@ -5,8 +5,8 @@
 
 'use strict';
 
-// ── Prize configuration ─────────────────────────────────────────
-const PRIZES = [
+// Default prizes (can be overridden)
+window.PRIZES = [
   { name: 'x0', multiplier: 0 },
   { name: 'x10', multiplier: 10 },
   { name: 'x10', multiplier: 10 },
@@ -15,13 +15,11 @@ const PRIZES = [
   { name: 'x100', multiplier: 100 },
 ];
 
-// Image map: hash → relative path from index.html
-const IMG = {
+window.IMG = {
   coin: 'images/2db7b5b03016488c7f8a7ac5c8c4d3bd801fc1dd.png',
   coinMiss: 'images/60059a5c837f22b218f4b1a872cdd0eb479079d0.png',
   crystal: 'images/7a91bab80904fe493d0e08bb15a093a76dcd5e1f.png',
-  gem: 'images/ce8ea4cea729904698a81b6a20d97f5234bbde21.png',
-  ring: 'images/5e8d13afdb391b7a46983068843fd305bf7e8306.png',
+  bc: 'images/ce8ea4cea729904698a81b6a20d97f5234bbde21.png',
 
   // Result modal
   fwJackpot: 'images/a5f28a277402d63a6cfcd89cbf9721376eb61dff.png',
@@ -63,7 +61,7 @@ const INNER_R = 58;
 const LABEL_R = 165;
 const COIN_R = 120;
 const COIN_SZ = 51;
-const DOT_R = 227; // Adjusted inward for perfect alignment with ring gems
+const DOT_R = 227; // Adjusted inward for perfect alignment with ring dots
 const N_DOTS = 24; // Realized the image has 24 dots (12 red, 12 white)
 const SPIN_DUR = 7000;
 
@@ -111,14 +109,22 @@ const TICK_SOUND = new TickSound();
 
 // ── WheelController ─────────────────────────────────────────────
 class WheelController {
-  constructor(containerId, onSpinEnd) {
+  constructor(containerId, onSpinEnd, prizes) {
     this.container = document.getElementById(containerId);
     this.onSpinEnd = onSpinEnd;
     this.rotation = 0;
     this.isAnim = false;
-    this.n = PRIZES.length;
+    this.prizes = prizes || window.PRIZES;
+    this.n = this.prizes.length;
     this.segDeg = 360 / this.n;
     this._build();
+  }
+
+  updatePrizes(newPrizes) {
+    this.prizes = newPrizes;
+    this.n = this.prizes.length;
+    this.segDeg = 360 / this.n;
+    this.redrawPrizes();
   }
 
   _build() {
@@ -129,14 +135,16 @@ class WheelController {
 
     // ── Spinning layer ──
     this.spinLayer = document.createElement('div');
-    this.spinLayer.style.cssText = `position:absolute;left:0;top:0;width:${W}px;height:${W}px;transform-origin:${CX}px ${CY}px;`;
+    this.spinLayer.style.cssText = `position:absolute;left:0;top:0;width:${W}px;height:${W}px;transform-origin:${CX}px ${CY}px; transition: none;`;
     c.appendChild(this.spinLayer);
 
-    // Build SVG
-    this._buildSVG();
+    // ── Dynamic Prize Layer (Inside spinLayer) ──
+    this.prizeLayer = document.createElement('div');
+    this.prizeLayer.style.cssText = `position:absolute;inset:0;`;
+    this.spinLayer.appendChild(this.prizeLayer);
 
-    // Build coin images inside spinning layer
-    this._buildCoins();
+    // Initial draw of prizes
+    this.redrawPrizes();
 
     // ── Static layer ──
     this._buildStatic();
@@ -148,13 +156,20 @@ class WheelController {
     this._buildLights();
   }
 
+  redrawPrizes() {
+    this.prizeLayer.innerHTML = '';
+    this._buildSVG();
+    this._buildCoins();
+  }
+
   _buildSVG() {
     const svg = svgEl('svg', { width: W, height: W, viewBox: `0 0 ${W} ${W}`, style: 'display:block;position:absolute;left:0;top:0;' });
+    this.prizeLayer.appendChild(svg);
 
     // Defs
     const defs = svgEl('defs', {});
 
-    PRIZES.forEach((prize, i) => {
+    this.prizes.forEach((prize, i) => {
       const rg = svgEl('radialGradient', { id: `wSeg${i}`, cx: '50%', cy: '50%', r: '50%' });
       if (prize.multiplier === 100) {
         // Golden slice with pulsing animation
@@ -191,13 +206,13 @@ class WheelController {
     svg.appendChild(defs);
 
     // Segments
-    PRIZES.forEach((_, i) => {
+    this.prizes.forEach((_, i) => {
       const a1 = i * this.segDeg, a2 = (i + 1) * this.segDeg;
       svg.appendChild(svgEl('path', { d: arcPath(CX, CY, OUTER_R, INNER_R, a1, a2), fill: `url(#wSeg${i})` }));
     });
 
     // Gold dividers
-    PRIZES.forEach((_, i) => {
+    this.prizes.forEach((_, i) => {
       const p1 = polar(CX, CY, INNER_R, i * this.segDeg);
       const p2 = polar(CX, CY, OUTER_R, i * this.segDeg);
       svg.appendChild(svgEl('line', {
@@ -231,7 +246,7 @@ class WheelController {
     svg.appendChild(svgEl('circle', { cx: CX, cy: CY, r: INNER_R, fill: 'url(#wCenter)' }));
 
     // Prize labels
-    PRIZES.forEach((prize, i) => {
+    this.prizes.forEach((prize, i) => {
       const mid = (i + 0.5) * this.segDeg;
       const pos = polar(CX, CY, LABEL_R, mid);
       const isSpec = prize.multiplier === 100;
@@ -256,8 +271,6 @@ class WheelController {
       g.appendChild(txt);
       svg.appendChild(g);
     });
-
-    this.spinLayer.appendChild(svg);
   }
 
   _stop(offset, color, animValues) {
@@ -274,12 +287,13 @@ class WheelController {
   }
 
   _buildCoins() {
-    PRIZES.forEach((prize, i) => {
+    this.prizes.forEach((prize, i) => {
       const mid = (i + 0.5) * this.segDeg;
       const pt = polar(CX, CY, COIN_R, mid);
-      const src = prize.multiplier === 0 ? IMG.coinMiss : IMG.coin;
+      const src = prize.multiplier === 0 ? window.IMG.coinMiss : window.IMG.coin;
 
       const div = document.createElement('div');
+      div.className = 'wheel-coin';
       div.style.cssText = `
         position:absolute;
         left:${(pt.x - COIN_SZ / 2).toFixed(1)}px;
@@ -293,7 +307,7 @@ class WheelController {
       img.src = src; img.alt = '';
       img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;pointer-events:none;';
       div.appendChild(img);
-      this.spinLayer.appendChild(div);
+      this.prizeLayer.appendChild(div);
     });
   }
 
@@ -312,12 +326,12 @@ class WheelController {
     crystalImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
     crystalWrap.appendChild(crystalImg);
 
-    const gemWrap = document.createElement('div');
-    gemWrap.style.cssText = `position:absolute;left:71px;top:0;width:25.407px;height:51px;transform:scaleY(-1);`;
-    const gemImg = document.createElement('img');
-    gemImg.src = IMG.gem; gemImg.alt = '';
-    gemImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
-    gemWrap.appendChild(gemImg);
+    const bcWrap = document.createElement('div');
+    bcWrap.style.cssText = `position:absolute;left:71px;top:0;width:25.407px;height:51px;transform:scaleY(-1);`;
+    const bcImg = document.createElement('img');
+    bcImg.src = IMG.bc; bcImg.alt = '';
+    bcImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+    bcWrap.appendChild(bcImg);
 
     hubWrap.appendChild(crystalWrap);
     c.appendChild(hubWrap);
@@ -426,8 +440,7 @@ class WheelController {
     if (prizeIndex !== undefined) {
       idx = prizeIndex;
     } else {
-      // 🚨 TEST PROBABILITY HACK: 50% chance to hit Jackpot (Index 5) for visual testing
-      idx = Math.random() < 0.5 ? 5 : Math.floor(Math.random() * (this.n - 1));
+      idx = Math.floor(Math.random() * this.n);
     }
     const midpoint = (idx + 0.5) * this.segDeg;
     const base = Math.ceil(this.rotation / 360) * 360;

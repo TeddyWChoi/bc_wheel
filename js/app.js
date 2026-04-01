@@ -20,15 +20,48 @@ const JACKPOT_MSGS = [
 
 const CHARACTERS = ['Teddy', 'Nova', 'Ghost', 'Reaper', 'Phantom', 'Blaze'];
 
+const PRIZE_SETS = {
+    6: [
+        { name: 'x0', multiplier: 0 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x0', multiplier: 0 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x100', multiplier: 100 },
+    ],
+    8: [
+        { name: 'x0', multiplier: 0 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x50', multiplier: 50 },
+        { name: 'x0', multiplier: 0 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x50', multiplier: 50 },
+        { name: 'x0', multiplier: 0 },
+        { name: 'x100', multiplier: 100 },
+    ],
+    10: [
+        { name: 'x0', multiplier: 0 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x20', multiplier: 20 },
+        { name: 'x0', multiplier: 0 },
+        { name: 'x50', multiplier: 50 },
+        { name: 'x10', multiplier: 10 },
+        { name: 'x0', multiplier: 0 },
+        { name: 'x20', multiplier: 20 },
+        { name: 'x0', multiplier: 0 },
+        { name: 'x100', multiplier: 100 },
+    ],
+};
+
 const MOCK_HISTORY = [
-    { date: '2026.03.10 14:32', myBc: 5830, iBet: 50, spinResult: 'x100', balance: 5780 },
-    { date: '2026.03.10 13:11', myBc: 5880, iBet: 100, spinResult: 'x10', balance: 5830 },
-    { date: '2026.03.09 21:45', myBc: 5980, iBet: 30, spinResult: 'x0', balance: 5880 },
-    { date: '2026.03.09 18:02', myBc: 6010, iBet: 30, spinResult: 'x50', balance: 5980 },
-    { date: '2026.03.08 09:17', myBc: 6110, iBet: 100, spinResult: 'x0', balance: 6010 },
+    { date: '2026.04.10 14:32', myBc: 5830, iBet: 50, spinResult: 'x100', balance: 5780 },
+    { date: '2026.04.10 13:11', myBc: 5880, iBet: 100, spinResult: 'x10', balance: 5830 },
+    { date: '2026.04.09 21:45', myBc: 5980, iBet: 30, spinResult: 'x0', balance: 5880 },
+    { date: '2026.04.09 18:02', myBc: 6010, iBet: 30, spinResult: 'x50', balance: 5980 },
+    { date: '2026.04.08 09:17', myBc: 6110, iBet: 100, spinResult: 'x0', balance: 6010 },
 ];
 
-const COUNTDOWN_TARGET = new Date('2026-03-31T23:59:59+01:00').getTime();
+const COUNTDOWN_TARGET = new Date('2026-04-30T23:59:59+02:00').getTime();
 
 /* ── Particle generation (done once on load) ─────────────────── */
 function buildParticles() {
@@ -93,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Wheel state
                 isSpinning: false,
                 prizeResult: null,    // index or null
-                confirmType: null,    // 'gem' | 'usedFree' | null
-                gems: 1231,
+                confirmType: null,    // 'bc' | 'usedFree' | null
+                bc: 1231,
                 bcBalance: BC_BALANCE,
                 // Betting
                 betAmount: '50',
@@ -117,6 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 historyVisible: false,
                 // Sound
                 soundOn: true,
+                // Slots
+                slotCount: 6,
                 // Constants for template
                 CHARACTERS,
                 JACKPOT_MSGS,
@@ -127,11 +162,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         computed: {
             characters() { return CHARACTERS; },
+            currentPrizes() {
+                return PRIZE_SETS[this.slotCount] || PRIZE_SETS[6];
+            },
             historyRows() {
                 return this.spinHistory;
             },
             prize() {
-                return this.prizeResult !== null ? window.PRIZES[this.prizeResult] : null;
+                return this.prizeResult !== null ? this.currentPrizes[this.prizeResult] : null;
             },
             isJackpot() { return this.prize && this.prize.multiplier === 100; },
             isLose() { return this.prize && this.prize.multiplier === 0; },
@@ -207,6 +245,11 @@ document.addEventListener('DOMContentLoaded', () => {
             wheelDisplaySize(size) {
                 this._applyWheelSize(size);
             },
+            slotCount(newVal) {
+                if (this.wheel) {
+                    this.wheel.updatePrizes(PRIZE_SETS[newVal]);
+                }
+            },
         },
 
         mounted() {
@@ -268,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 this.wheel = new window.WheelController('wheel-wrapper', (idx) => {
                     this.handleSpinEnd(idx);
-                });
+                }, this.currentPrizes);
                 this.wheel.updateLoggedIn(this.isLoggedIn);
             },
 
@@ -292,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // ① BC가 0인 경우
                 if (this.bcBalance === 0) {
-                    alert('BC가 없습니다. Event를 진행할 수 없습니다.\nYou have 0 BC. Event cannot be started.');
+                    alert('You have 0 BC. Event cannot be started.');
                     return;
                 }
 
@@ -305,21 +348,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // ③ BC < 배팅금액인 경우
                 if (this.bcBalance < bet) {
-                    alert('BC가 부족합니다.\nInsufficient BC.');
+                    alert('Insufficient BC.');
                     return;
                 }
 
-                if (this.gems >= 70) {
-                    this.confirmType = 'gem';
-                } else {
-                    this.doSpin();
+                // 1. Basic Balance Check (Front-end)
+                if (this.bcBalance < bet) {
+                    alert('Insufficient BC.');
+                    return;
                 }
+
+                // 2. Backend Validation Simulation (Requested: Alert on mismatch)
+                // In a real scenario, this would be an API call.
+                const isBalanceValid = true; // Placeholder for actual backend check
+                if (!isBalanceValid) {
+                    alert("Please check 'My BC' again.");
+                    return;
+                }
+
+                // 3. Show Wager Confirmation
+                this.confirmType = 'bc';
             },
 
 
             handleConfirmSpin() {
                 this.confirmType = null;
-                this.gems -= 70;
+                // Note: BC deduction will be handled by the backend API per project requirements.
                 this.doSpin();
             },
 
@@ -386,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this._confettiActive = true;
                 const canvas = document.getElementById('confetti-canvas');
                 if (!canvas) return;
-                
+
                 // Create a private confetti instance for our specific canvas
                 if (!this._myConfetti) {
                     this._myConfetti = confetti.create(canvas, { resize: true });
