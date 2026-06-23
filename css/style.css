@@ -259,7 +259,7 @@ select option {
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4, 0, 18, 0.38);
+  /* background: rgba(4, 0, 18, 0.38); */
   z-index: 0;
 }
 
@@ -2126,7 +2126,8 @@ footer {
 
 @media (max-width: 768px) {
   .slot-test-selector {
-    top: 60px; /* Below sticky header on mobile */
+    top: 60px;
+    /* Below sticky header on mobile */
     font-size: 10px;
     padding: 4px 10px;
   }
